@@ -15,10 +15,12 @@ Ext.define('Shopware.apps.FrejuBundles', {
         'list.Bundle',
 
         'detail.Bundle',
-        'detail.Window'
+        'detail.Window',
+        'detail.Article',
+        'detail.BundleType'
     ],
 
-    models: [ 'Bundle', 'Category' ],
+    models: [ 'Bundle', 'Article', 'BundleType' ],
     stores: [ 'Bundle' ],
 
     launch: function() {

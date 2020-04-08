@@ -11,8 +11,10 @@ class Shopware_Controllers_Backend_FrejuBundles extends \Shopware_Controllers_Ba
     {
         $builder = parent::getListQuery();
 
-        $builder->leftJoin('bundle.mainProduct', 'mainProduct');
-        $builder->addSelect(array('mainProduct'));
+        $builder->leftJoin('bundle.bundleType', 'bundleType')
+                ->leftJoin('bundle.mainProduct', 'mainProduct');
+
+        $builder->addSelect(array('mainProduct', 'bundleType'));
 
         return $builder;
     }
@@ -21,10 +23,33 @@ class Shopware_Controllers_Backend_FrejuBundles extends \Shopware_Controllers_Ba
     {
         $builder = parent::getDetailQuery($id);
 
-        $builder->leftJoin('bundle.mainProduct', 'mainProduct');
+        $builder->leftJoin('bundle.bundleType', 'bundleType')
+                ->leftJoin('bundle.mainProduct', 'mainProduct');
 
-        $builder->addSelect(array('mainProduct'));
+        $builder->addSelect(array('mainProduct', 'bundleType'));
 
         return $builder;
+    }
+
+    protected function getAdditionalDetailData(array $data)
+    {
+        $data['relatedProducts'] = $this->getRelatedProducts($data['id']);
+        return $data;
+    }
+
+    protected function getRelatedProducts($bundleId)
+    {
+        $builder = $this->getManager()->createQueryBuilder();
+        $builder->select(array('bundles', 'relatedProducts'))
+            ->from(Bundle::class, 'bundles')
+            ->innerJoin('bundles.relatedProducts', 'relatedProducts')
+            ->where('bundles.id = :id')
+            ->setParameter('id', $bundleId);
+
+        $paginator = $this->getQueryPaginator($builder);
+
+        $data = $paginator->getIterator()->current();
+
+        return $data['relatedProducts'];
     }
 }

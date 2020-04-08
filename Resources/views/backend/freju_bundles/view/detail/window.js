@@ -3,11 +3,5 @@ Ext.define('Shopware.apps.FrejuBundles.view.detail.Window', {
     alias: 'widget.bundle-detail-window',
     title : '{s name=title}Bundle details{/s}',
     height: 420,
-    width: 900,
-
-    configure: function() {
-        return {
-            associations: [ 'categories' ]
-        }
-    }
+    width: 900
 });

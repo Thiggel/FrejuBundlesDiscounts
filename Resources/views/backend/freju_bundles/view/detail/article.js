@@ -1,8 +1,8 @@
-Ext.define('Shopware.apps.FrejuBundles.view.detail.Category', {
+Ext.define('Shopware.apps.FrejuBundles.view.detail.Article', {
     extend: 'Shopware.grid.Association',
-    alias: 'widget.product-view-detail-category',
+    alias: 'widget.product-view-detail-article',
     height: 300,
-    title: 'Category',
+    title: 'Assoziierte Produkte',
 
     configure: function() {
         return {

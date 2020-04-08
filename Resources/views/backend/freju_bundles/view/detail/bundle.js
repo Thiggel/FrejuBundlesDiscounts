@@ -7,7 +7,7 @@ Ext.define('Shopware.apps.FrejuBundles.view.detail.Bundle', {
     configure: function() {
         return {
             controller: 'FrejuBundles',
-            associations: [ 'categories' ]
+            associations: [ 'relatedProducts', 'bundleType', 'bundleTypeId' ]
         };
     }
 });

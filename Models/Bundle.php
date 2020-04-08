@@ -2,6 +2,7 @@
 
 namespace FrejuBundlesDiscounts\Models;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Shopware\Components\Model\ModelEntity;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -20,7 +21,6 @@ class Bundle extends ModelEntity
      */
     private $id;
 
-
     const BUNDLE_SPAR = 'Spar-Bundle';
     const BUNDLE_GRATIS = 'Gratis-Bundle';
     const BUNDLE_KONFIG = 'Konfigurator-Rabatt';
@@ -37,35 +37,36 @@ class Bundle extends ModelEntity
      *
      * @ORM\Column(name="main_product_id", type="integer")
      */
-    protected $mainProductID;
+    protected $mainProductId;
 
     /**
      * @var
+     *
      * @ORM\ManyToOne(targetEntity="Shopware\Models\Article\Article")
      * @ORM\JoinColumn(name="main_product_id", referencedColumnName="id")
      */
     protected $mainProduct;
 
     /**
-     * @var integer $articleOneID
+     * @var ArrayCollection
      *
-     * @ORM\Column(type="integer")
+     * @ORM\ManyToMany(targetEntity="Shopware\Models\Article\Article")
+     * @ORM\JoinTable(name="related_product_id",
+     *      joinColumns={
+     *          @ORM\JoinColumn(
+     *              name="bundle_id",
+     *              referencedColumnName="id"
+     *          )
+     *      },
+     *      inverseJoinColumns={
+     *          @ORM\JoinColumn(
+     *              name="product_id",
+     *              referencedColumnName="id"
+     *          )
+     *      }
+     * )
      */
-    private $articleOneID;
-
-    /**
-     * @var integer $articleTwoID
-     *
-     * @ORM\Column(type="integer")
-     */
-    private $articleTwoID;
-
-    /**
-     * @var integer $articleThreeID
-     *
-     * @ORM\Column(type="integer")
-     */
-    private $articleThreeID;
+    protected $relatedProducts;
 
     /**
      * @var integer $bundleBonus
@@ -88,6 +89,12 @@ class Bundle extends ModelEntity
      */
     private $createDate = null;
 
+
+    public function __construct()
+    {
+        $this->relatedProducts = new ArrayCollection();
+    }
+
     /**
      * @return int
      */
@@ -97,11 +104,22 @@ class Bundle extends ModelEntity
     }
 
     /**
+     * @param mixed $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
      * @param int $active
+     * @return Bundle
      */
     public function setActive($active)
     {
         $this->active = $active;
+
+        return $this;
     }
 
     /**
@@ -114,10 +132,13 @@ class Bundle extends ModelEntity
 
     /**
      * @param \DateTime $createDate
+     * @return Bundle
      */
     public function setCreateDate($createDate)
     {
         $this->createDate = $createDate;
+
+        return $this;
     }
 
     /**
@@ -138,6 +159,7 @@ class Bundle extends ModelEntity
 
     /**
      * @param $bundleType
+     * @return Bundle
      */
     public function setBundleType($bundleType)
     {
@@ -145,6 +167,8 @@ class Bundle extends ModelEntity
             throw new \InvalidArgumentException("Invalid bundle type");
         }
         $this->bundleType = $bundleType;
+
+        return $this;
     }
 
     /**
@@ -156,10 +180,14 @@ class Bundle extends ModelEntity
 
     /**
      * @param $mainProduct
+     * @return Bundle
      */
     public function setMainProduct($mainProduct) {
         $this->mainProduct = $mainProduct;
+
+        return $this;
     }
+
     /**
      * @return int
      */
@@ -169,8 +197,30 @@ class Bundle extends ModelEntity
 
     /**
      * @param $bonus
+     * @return Bundle
      */
     public function setBundleBonus($bonus) {
         $this->bundleBonus = $bonus;
+
+        return $this;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getRelatedProducts()
+    {
+        return $this->relatedProducts;
+    }
+
+    /**
+     * @param ArrayCollection $relatedProducts
+     * @return Bundle
+     */
+    public function setRelatedProducts($relatedProducts)
+    {
+        $this->relatedProducts = $relatedProducts;
+
+        return $this;
     }
 }
