@@ -1,12 +1,12 @@
 //
 
-Ext.define('Shopware.apps.FrejuBundles.view.detail.Bundle', {
+Ext.define('Shopware.apps.FrejuDiscounts.view.detail.Discount', {
     extend: 'Shopware.model.Container',
     padding: 20,
 
     configure: function() {
         return {
-            controller: 'FrejuBundles',
+            controller: 'FrejuDiscounts',
             associations: [ 'relatedProducts' ]
         };
     }

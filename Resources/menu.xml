@@ -10,7 +10,16 @@
             <controller>FrejuBundles</controller>
             <action>index</action>
             <class>sprite-article-sales</class>
-            <parent identifiedBy="controller">Article</parent>
+            <parent identifiedBy="controller">Marketing</parent>
+        </entry>
+        <entry>
+            <name>FrejuDiscounts</name>
+            <label lang="en">Product Discounts</label>
+            <label lang="de">Rabattaktionen</label>
+            <controller>FrejuDiscounts</controller>
+            <action>index</action>
+            <class>sprite-money-coin</class>
+            <parent identifiedBy="controller">Marketing</parent>
         </entry>
     </entries>
 </menu>

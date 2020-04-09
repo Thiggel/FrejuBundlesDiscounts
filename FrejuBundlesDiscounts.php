@@ -9,7 +9,7 @@ use Shopware\Components\Plugin\Context\InstallContext;
 use Shopware\Components\Plugin\Context\UninstallContext;
 use Shopware\Components\Model\ModelManager;
 use FrejuBundlesDiscounts\Models\Bundle;
-use FrejuBundlesDiscounts\Models\BundleType;
+use FrejuBundlesDiscounts\Models\Discount;
 
 class FrejuBundlesDiscounts extends Plugin
 {
@@ -19,8 +19,6 @@ class FrejuBundlesDiscounts extends Plugin
     public function install(InstallContext $installContext)
     {
         $this->createDatabase();
-
-        $this->addDbData();
     }
 
     /**
@@ -69,18 +67,7 @@ class FrejuBundlesDiscounts extends Plugin
     {
         return [
             $modelManager->getClassMetadata(Bundle::class),
-            $modelManager->getClassMetadata(BundleType::class)
+            $modelManager->getClassMetadata(Discount::class)
         ];
-    }
-
-    private function addDbData()
-    {
-        $connection = $this->container->get('dbal_connection');
-
-        $sql = "INSERT IGNORE INTO s_bundle_type (name)
-            VALUES ('Spar-Bundle'), ('Gratisartikel-Bundle'), ('Konfigurator-Rabatt')
-        ";
-
-        $connection->exec($sql);
     }
 }

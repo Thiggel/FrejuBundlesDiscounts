@@ -1,9 +1,9 @@
 //
 
-Ext.define('Shopware.apps.FrejuBundles', {
+Ext.define('Shopware.apps.FrejuDiscounts', {
     extend: 'Enlight.app.SubApplication',
 
-    name:'Shopware.apps.FrejuBundles',
+    name:'Shopware.apps.FrejuDiscounts',
 
     loadPath: '{url action=load}',
     bulkLoad: true,
@@ -12,15 +12,15 @@ Ext.define('Shopware.apps.FrejuBundles', {
 
     views: [
         'list.Window',
-        'list.Bundle',
+        'list.Discount',
 
-        'detail.Bundle',
+        'detail.Discount',
         'detail.Window',
         'detail.Article'
     ],
 
-    models: [ 'Bundle', 'Article' ],
-    stores: [ 'Bundle' ],
+    models: [ 'Discount', 'Article' ],
+    stores: [ 'Discount' ],
 
     launch: function() {
         return this.getController('Main').mainWindow;

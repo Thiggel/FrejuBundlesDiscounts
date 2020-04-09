@@ -11,10 +11,9 @@ class Shopware_Controllers_Backend_FrejuBundles extends \Shopware_Controllers_Ba
     {
         $builder = parent::getListQuery();
 
-        $builder->leftJoin('bundle.bundleType', 'bundleType')
-                ->leftJoin('bundle.mainProduct', 'mainProduct');
+        $builder->leftJoin('bundle.mainProduct', 'mainProduct');
 
-        $builder->addSelect(array('mainProduct', 'bundleType'));
+        $builder->addSelect(array('mainProduct'));
 
         return $builder;
     }
@@ -23,10 +22,9 @@ class Shopware_Controllers_Backend_FrejuBundles extends \Shopware_Controllers_Ba
     {
         $builder = parent::getDetailQuery($id);
 
-        $builder->leftJoin('bundle.bundleType', 'bundleType')
-                ->leftJoin('bundle.mainProduct', 'mainProduct');
+        $builder->leftJoin('bundle.mainProduct', 'mainProduct');
 
-        $builder->addSelect(array('mainProduct', 'bundleType'));
+        $builder->addSelect(array('mainProduct'));
 
         return $builder;
     }
