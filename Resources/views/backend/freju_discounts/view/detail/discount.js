@@ -7,7 +7,7 @@ Ext.define('Shopware.apps.FrejuDiscounts.view.detail.Discount', {
     configure: function() {
         return {
             controller: 'FrejuDiscounts',
-            associations: [ 'relatedProducts' ]
+            associations: [ 'relatedDiscountedItems' ]
         };
     }
 });

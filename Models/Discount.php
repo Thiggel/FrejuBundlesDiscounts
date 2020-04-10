@@ -31,8 +31,8 @@ class Discount extends ModelEntity
     /**
      * @var ArrayCollection
      *
-     * @ORM\ManyToMany(targetEntity="Shopware\Models\Article\Article")
-     * @ORM\JoinTable(name="discount_related_product_id",
+     * @ORM\ManyToMany(targetEntity="FrejuBundlesDiscounts\Models\DiscountedItem")
+     * @ORM\JoinTable(name="discounted_item_id",
      *      joinColumns={
      *          @ORM\JoinColumn(
      *              name="discount_id",
@@ -41,13 +41,13 @@ class Discount extends ModelEntity
      *      },
      *      inverseJoinColumns={
      *          @ORM\JoinColumn(
-     *              name="product_id",
+     *              name="discounted_item_id",
      *              referencedColumnName="id"
      *          )
      *      }
      * )
      */
-    protected $relatedProducts;
+    protected $relatedDiscountedItems;
 
     /**
      * @var integer $active
@@ -87,7 +87,7 @@ class Discount extends ModelEntity
 
     public function __construct()
     {
-        $this->relatedProducts = new ArrayCollection();
+        $this->relatedDiscountedItems = new ArrayCollection();
     }
 
     /**
@@ -221,18 +221,18 @@ class Discount extends ModelEntity
     /**
      * @return ArrayCollection
      */
-    public function getRelatedProducts()
+    public function getRelatedDiscountedItems()
     {
-        return $this->relatedProducts;
+        return $this->relatedDiscountedItems;
     }
 
     /**
-     * @param ArrayCollection $relatedProducts
+     * @param ArrayCollection $relatedDiscountedItems
      * @return Discount
      */
-    public function setRelatedProducts($relatedProducts)
+    public function setRelatedDiscountedItems($relatedDiscountedItems)
     {
-        $this->relatedProducts = $relatedProducts;
+        $this->relatedDiscountedItems = $relatedDiscountedItems;
 
         return $this;
     }

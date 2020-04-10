@@ -20,12 +20,12 @@ Ext.define('Shopware.apps.FrejuDiscounts.model.Discount', {
     ],
 
     associations: [{
-        relation: 'ManyToMany',
+        relation: 'OneToMany',
 
         type: 'hasMany',
-        model: 'Shopware.apps.FrejuDiscounts.model.Article',
-        name: 'getRelatedProducts',
-        associationKey: 'relatedProducts'
+        model: 'Shopware.apps.FrejuDiscounts.model.DiscountedItem',
+        name: 'getRelatedDiscountedItems',
+        associationKey: 'relatedDiscountedItems'
     }]
 });
 

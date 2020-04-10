@@ -16,10 +16,10 @@ Ext.define('Shopware.apps.FrejuDiscounts', {
 
         'detail.Discount',
         'detail.Window',
-        'detail.Article'
+        'detail.DiscountedItem'
     ],
 
-    models: [ 'Discount', 'Article' ],
+    models: [ 'Discount', 'DiscountedItem' ],
     stores: [ 'Discount' ],
 
     launch: function() {
