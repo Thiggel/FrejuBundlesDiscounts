@@ -21,14 +21,5 @@
             <class>sprite-money-coin</class>
             <parent identifiedBy="controller">Marketing</parent>
         </entry>
-        <entry>
-            <name>FrejuDiscountedItems</name>
-            <label lang="en">Items for Discounts</label>
-            <label lang="de">Zugehörige Produkte zu Rabattaktionen</label>
-            <controller>FrejuDiscountedItems</controller>
-            <action>index</action>
-            <class>sprite-money-coin</class>
-            <parent identifiedBy="controller">Marketing</parent>
-        </entry>
     </entries>
 </menu>

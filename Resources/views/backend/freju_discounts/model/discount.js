@@ -17,14 +17,15 @@ Ext.define('Shopware.apps.FrejuDiscounts.model.Discount', {
         { name : 'startDate', type: 'date' },
         { name : 'endDate', type: 'date' },
         { name : 'name', type: 'string' },
+        { name : 'discounts', type: 'string' }
     ],
 
     associations: [{
-        relation: 'OneToMany',
+        relation: 'ManyToMany',
 
         type: 'hasMany',
-        model: 'Shopware.apps.FrejuDiscounts.model.DiscountedItem',
-        name: 'getRelatedDiscountedItems',
+        model: 'Shopware.apps.FrejuDiscounts.model.Article',
+        name: 'getArticles',
         associationKey: 'relatedDiscountedItems'
     }]
 });

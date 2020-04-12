@@ -31,8 +31,8 @@ class Discount extends ModelEntity
     /**
      * @var ArrayCollection
      *
-     * @ORM\ManyToMany(targetEntity="FrejuBundlesDiscounts\Models\DiscountedItem")
-     * @ORM\JoinTable(name="discounted_item_id",
+     * @ORM\ManyToMany(targetEntity="Shopware\Models\Article\Article")
+     * @ORM\JoinTable(name="discount_related_product_id",
      *      joinColumns={
      *          @ORM\JoinColumn(
      *              name="discount_id",
@@ -41,7 +41,7 @@ class Discount extends ModelEntity
      *      },
      *      inverseJoinColumns={
      *          @ORM\JoinColumn(
-     *              name="discounted_item_id",
+     *              name="product_id",
      *              referencedColumnName="id"
      *          )
      *      }
@@ -84,10 +84,33 @@ class Discount extends ModelEntity
      */
     private $endDate = null;
 
+    /**
+     * @var string $discounts
+     * @ORM\Column(type="string")
+     */
+    private $discounts;
+
 
     public function __construct()
     {
         $this->relatedDiscountedItems = new ArrayCollection();
+    }
+
+    /**
+     * @param $discounts
+     * @return $this
+     */
+    public function setDiscounts($discounts) {
+        $this->discounts = $discounts;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDiscounts() {
+        return $this->discounts;
     }
 
     /**
