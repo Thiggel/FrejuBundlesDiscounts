@@ -130,6 +130,8 @@ class ListProductService implements ListProductServiceInterface
 
         $freeAddArticles = $this->freeAddArticlesService->getList();
 
+        $discounts = $this->freeAddArticlesService->getDiscounts();
+
         $result = [];
         foreach ($numbers as $number) {
             if (!array_key_exists($number, $products)) {
@@ -179,6 +181,11 @@ class ListProductService implements ListProductServiceInterface
             if(isset($freeAddArticles[$product->getId()])) {
                 $attribute = new Struct\Attribute(['freeAddArticles' => $freeAddArticles[$product->getId()]]);
                 $product->addAttribute('freeAddArticles', $attribute);
+            }
+
+            if(isset($discounts[$product->getId()])) {
+                $attribute = new Struct\Attribute(['discounts' => $discounts[$product->getId()]]);
+                $product->addAttribute('discounts', $attribute);
             }
 
             $result[$number] = $product;

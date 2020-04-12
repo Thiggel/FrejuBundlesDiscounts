@@ -96,4 +96,42 @@ class FreeAddArticlesService
 
         return $products;
     }
+
+    /**
+     * @return array
+     * @throws DBALException
+     */
+    public function getDiscounts()
+    {
+        $sql = "
+            SELECT discount_id, product_id, d.name, d.discounts, d.discount_precalculated, d.cashback, d.active, d.startDate, d.endDate
+            FROM discount_related_product_id r
+            INNER JOIN s_discount d ON d.id = r.discount_id
+        ";
+
+        $query = $this->connection->query($sql)->fetchAll();
+
+        $products = [];
+        $nOfDiscounts = [];
+
+        foreach($query as $discount) {
+            if($discount['active'] /* TODO: && startDate <= today && endDate >= today */) {
+                if(empty($nOfDiscounts[$discount['discount_id']])) $nOfDiscounts[$discount['discount_id']] = 0;
+
+                // get the nth discount (discounts are put into a string and separated with semicolon)
+                $discountValue = explode(";", $discount['discounts'])[$nOfDiscounts[$discount['discount_id']]];
+
+                $products[$discount['product_id']]['discounts'][] = [
+                    'value' => $discountValue,
+                    'cashback' => $discount['cashback'],
+                    'discount_precalculated' => $discount['discount_precalculated']
+                ];
+
+                // increment number of discounts
+                $nOfDiscounts[$discount['discount_id']]++;
+            }
+        }
+
+        return $products;
+    }
 }
