@@ -11,6 +11,8 @@ use Shopware\Components\Model\ModelManager;
 use FrejuBundlesDiscounts\Models\Bundle;
 use FrejuBundlesDiscounts\Models\Discount;
 use FrejuBundlesDiscounts\Models\DiscountedItem;
+use FrejuBundlesDiscounts\Components\CompilerPass\AddTemplatePluginDirCompilerPass;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class FrejuBundlesDiscounts extends Plugin
 {
@@ -19,7 +21,7 @@ class FrejuBundlesDiscounts extends Plugin
      */
     public function install(InstallContext $installContext)
     {
-        $this->createDatabase();
+        //$this->createDatabase();
     }
 
     /**
@@ -36,7 +38,7 @@ class FrejuBundlesDiscounts extends Plugin
     public function uninstall(UninstallContext $uninstallContext)
     {
         if (!$uninstallContext->keepUserData()) {
-            $this->removeDatabase();
+            //$this->removeDatabase();
         }
     }
 

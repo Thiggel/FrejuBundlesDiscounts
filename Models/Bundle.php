@@ -22,7 +22,7 @@ class Bundle extends ModelEntity
     private $id;
 
     const BUNDLE_SPAR = 'Spar-Bundle';
-    const BUNDLE_GRATIS = 'Gratis-Bundle';
+    const BUNDLE_GRATIS = 'Gratisartikel-Bundle';
     const BUNDLE_KONFIG = 'Konfigurator-Rabatt';
 
     /**

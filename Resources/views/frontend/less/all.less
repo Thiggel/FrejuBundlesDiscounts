@@ -1,0 +1,77 @@
+.freju--article__free-add-articles {
+    position: absolute;
+    top: 0;
+    right: 50%;
+    transform: translate(50%, -50%);
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &_images {
+        display: flex;
+
+        img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50px;
+            object-fit: cover;
+            z-index: 1;
+            border: 2px solid #ebebeb;
+        }
+
+        a {
+            &:not(:first-child) {
+                margin-left: -50px;
+            }
+        }
+    }
+
+    label {
+        background: #ebebeb;
+        color: #292929;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 2;
+        margin-top: -20px;
+        text-align: center;
+
+        a {
+            color: #292929;
+            font-weight: 600;
+        }
+
+        &:before {
+            content: "+ Gratis ";
+        }
+    }
+
+    &.listing {
+        top: 0px;
+        left: 8px;
+        transform: none;
+        z-index: 999999999;
+        max-width: 180px;
+
+        .freju--article__free-add-articles_images {
+            img {
+                width: 50px;
+                height: 50px;
+            }
+
+            a {
+                &:not(:first-child) {
+                    margin-left: -10px;
+                }
+            }
+        }
+
+        label {
+            font-size: 12px;
+            padding: 10px 12px;
+        }
+    }
+}
