@@ -69,11 +69,12 @@ class FreeAddArticlesService
     private function getFreeProducts()
     {
         $sql = "
-            SELECT s_bundle.main_product_id, product_id, s_articles_img.media_id AS image_id, s_articles.name
+            SELECT s_bundle.main_product_id, p.price, product_id, s_articles_img.media_id AS image_id, s_articles.name
             FROM related_product_id
             INNER JOIN s_bundle ON s_bundle.id = related_product_id.bundle_id
             INNER JOIN s_articles_img ON s_articles_img.articleID = product_id
             INNER JOIN s_articles ON s_articles.id = product_id
+            INNER JOIN s_articles_prices p ON p.articleID = product_id
         ";
 
         $query = $this->connection->query($sql)->fetchAll();
@@ -85,16 +86,45 @@ class FreeAddArticlesService
             $id = $relations['product_id'];
             $name = $relations['name'];
             $url = $this->getUrl($id);
+            $price = $relations['price'] * 1.19;
 
             $products[$relations['main_product_id']][] = [
                 'id' => $id,
                 'name' => $name,
                 'img' => $img,
-                'url' => $url
+                'url' => $url,
+                'price' => $price
             ];
         }
 
         return $products;
+    }
+
+    /**
+     * @param $discount
+     * @param $price
+     * @return float|int
+     */
+    private function removeDiscount($discount, $price) {
+        if(strpos($discount, '€')) {
+            $price += (int)trim(str_replace('€', '', $discount));
+        } else if(strpos($discount, '%')) {
+            $value = (int)trim(str_replace('%', '', $discount));
+            $price /= (100 - $value ) * 100;
+        }
+
+        return $price;
+    }
+
+    private function addDiscount($discount, $price) {
+        if(strpos($discount, '€')) {
+            $price -= (int)trim(str_replace('€', '', $discount));
+        } else if(strpos($discount, '%')) {
+            $value = (int)trim(str_replace('%', '', $discount));
+            $price *= (100 - $value) / 100;
+        }
+
+        return $price;
     }
 
     /**
@@ -104,9 +134,10 @@ class FreeAddArticlesService
     public function getDiscounts()
     {
         $sql = "
-            SELECT discount_id, product_id, d.name, d.discounts, d.discount_precalculated, d.cashback, d.active, d.startDate, d.endDate
+            SELECT discount_id, product_id, p.price, d.name, d.discounts, d.discount_precalculated, d.cashback, d.active, d.startDate, d.endDate
             FROM discount_related_product_id r
             INNER JOIN s_discount d ON d.id = r.discount_id
+            INNER JOIN s_articles_prices p ON p.articleID = product_id
         ";
 
         $query = $this->connection->query($sql)->fetchAll();
@@ -121,15 +152,48 @@ class FreeAddArticlesService
                 // get the nth discount (discounts are put into a string and separated with semicolon)
                 $discountValue = explode(";", $discount['discounts'])[$nOfDiscounts[$discount['discount_id']]];
 
+                $products[$discount['product_id']]['price'] = $discount['price'] * 1.19;
+
                 $products[$discount['product_id']]['discounts'][] = [
                     'value' => $discountValue,
                     'cashback' => $discount['cashback'],
-                    'discount_precalculated' => $discount['discount_precalculated']
+                    'discount_precalculated' => $discount['discount_precalculated'],
+                    'name' => $discount['name']
                 ];
 
                 // increment number of discounts
                 $nOfDiscounts[$discount['discount_id']]++;
             }
+        }
+
+        $freeAddArticles = $this->getFreeProducts();
+
+        foreach($products as $key => &$product) {
+            $payablePrice = $product['price'];
+            $prePrice = $product['price'];
+            $postPrice = $product['price'];
+
+            foreach($product['discounts'] as $discount) {
+                if($discount['discount_precalculated']) {
+                    $prePrice = $this->removeDiscount($discount['value'], $prePrice);
+                } else if($discount['cashback']) {
+                    $postPrice = $this->addDiscount($discount['value'], $postPrice);
+                } else {
+                    $payablePrice = $this->addDiscount($discount['value'], $payablePrice);
+                }
+            }
+
+            if($freeAddArticles[$key]) {
+                foreach($freeAddArticles[$key] as $article) {
+                    $prePrice += $article['price'];
+                }
+
+                $product['freeAddArticles'] = $freeAddArticles[$key];
+            }
+
+            $product['prePrice'] = $prePrice;
+            $product['payablePrice'] = $payablePrice;
+            $product['postPrice'] = $postPrice;
         }
 
         return $products;

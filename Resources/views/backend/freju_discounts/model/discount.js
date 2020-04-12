@@ -13,7 +13,7 @@ Ext.define('Shopware.apps.FrejuDiscounts.model.Discount', {
         { name : 'id', type: 'int', useNull: true },
         { name : 'active', type: 'boolean' },
         { name : 'cashback', type: 'boolean' },
-        { name : 'discountPrecalculated', type: 'boolean' },
+        { name : 'discount_precalculated', type: 'boolean' },
         { name : 'startDate', type: 'date' },
         { name : 'endDate', type: 'date' },
         { name : 'name', type: 'string' },
