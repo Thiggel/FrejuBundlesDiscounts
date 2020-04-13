@@ -114,3 +114,48 @@
         }
     }
 }
+
+.freju--checkout__discount {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px;
+    margin: 12px 0;
+    border: 2px solid rgba(57, 88, 154, 1);
+    color: rgba(57, 88, 154, 1);
+    font-size: 16px;
+    font-weight: 600;
+    background: rgba(57, 88, 154, 0.3);
+    border-radius: 5px;
+
+    &_value, &_name {
+        width: 50%;
+    }
+
+    &_value {
+        text-align: right;
+    }
+
+    &_description {
+        width: 100%;
+        margin-top: 12px;
+        font-weight: 500;
+    }
+}
+
+.freju--checkout__discount-labels {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 12px 0;
+
+    &_label {
+        background: rgba(57, 88, 154, 0.3);
+        color: rgba(57, 88, 154, 1);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        margin-right: 8px;
+    }
+}
