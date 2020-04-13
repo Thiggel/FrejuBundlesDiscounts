@@ -40,28 +40,31 @@
             <div class="freju--discounts__discount">
                 <div class="freju--discounts__discount_cell">Unser regulärer Preis</div>
                 <div class="freju--discounts__discount_cell">{$discounts['prePrice']} €</div>
+                {if !$short}
+                    {foreach $discounts['freeAddArticles'] as $article}
+                        <div class="freju--discounts__discount_cell freeAddArticle">Inklusive Gratis <a href="{$article['url']}">{$article['name']}</a></div>
+                        <div class="freju--discounts__discount_cell freeAddArticle">{$article['price']} €</div>
+                    {/foreach}
 
-                {foreach $discounts['freeAddArticles'] as $article}
-                    <div class="freju--discounts__discount_cell freeAddArticle">Inklusive Gratis <a href="{$article['url']}">{$article['name']}</a></div>
-                    <div class="freju--discounts__discount_cell freeAddArticle">{$article['price']} €</div>
-                {/foreach}
-
-                {foreach $discounts['discounts'] as $discount}
-                    {if !$discount['cashback']}
-                        <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
-                        <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']} €</div>
-                    {/if}
-                {/foreach}
+                    {foreach $discounts['discounts'] as $discount}
+                        {if !$discount['cashback']}
+                            <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
+                            <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']} €</div>
+                        {/if}
+                    {/foreach}
+                {/if}
 
                 <div class="freju--discounts__discount_cell">Sie zahlen an uns</div>
                 <div class="freju--discounts__discount_cell">{$discounts['payablePrice']} €</div>
 
-                {foreach $discounts['discounts'] as $discount}
-                    {if $discount['cashback']}
-                        <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
-                        <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']} €</div>
-                    {/if}
-                {/foreach}
+                {if !$short}
+                    {foreach $discounts['discounts'] as $discount}
+                        {if $discount['cashback']}
+                            <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
+                            <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']} €</div>
+                        {/if}
+                    {/foreach}
+                {/if}
 
                 <div class="freju--discounts__discount_cell">Preis nach allen Aktionen</div>
                 <div class="freju--discounts__discount_cell">{$discounts['postPrice']} €</div>
