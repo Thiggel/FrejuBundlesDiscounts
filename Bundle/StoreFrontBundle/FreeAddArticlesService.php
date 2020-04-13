@@ -101,6 +101,14 @@ class FreeAddArticlesService
     }
 
     /**
+     * @param $n
+     * @return string
+     */
+    private function formatNum($n) {
+        return number_format($n, 2, ',', '.');
+    }
+
+    /**
      * @param $discount
      * @param $price
      * @return float|int
@@ -116,12 +124,33 @@ class FreeAddArticlesService
         return $price;
     }
 
+    /**
+     * @param $discount
+     * @param $price
+     * @return float|int
+     */
     private function addDiscount($discount, $price) {
         if(strpos($discount, '€')) {
             $price -= (int)trim(str_replace('€', '', $discount));
         } else if(strpos($discount, '%')) {
             $value = (int)trim(str_replace('%', '', $discount));
             $price *= (100 - $value) / 100;
+        }
+
+        return $price;
+    }
+
+    /**
+     * @param $discount
+     * @param $price
+     * @param $precalculated
+     * @return float|int
+     */
+    private function getAbsoluteValue($discount, $price, $precalculated) {
+        if($precalculated) {
+            $price = $this->removeDiscount($discount, $price) - $price;
+        } else {
+            $price -= $this->addDiscount($discount, $price);
         }
 
         return $price;
@@ -158,7 +187,14 @@ class FreeAddArticlesService
                     'value' => $discountValue,
                     'cashback' => $discount['cashback'],
                     'discount_precalculated' => $discount['discount_precalculated'],
-                    'name' => $discount['name']
+                    'name' => $discount['name'],
+                    'absoluteValue' => $this->formatNum(
+                        $this->getAbsoluteValue(
+                            $discountValue,
+                            $discount['price'] * 1.19,
+                            $discount['discount_precalculated']
+                        )
+                    )
                 ];
 
                 // increment number of discounts
@@ -180,6 +216,7 @@ class FreeAddArticlesService
                     $postPrice = $this->addDiscount($discount['value'], $postPrice);
                 } else {
                     $payablePrice = $this->addDiscount($discount['value'], $payablePrice);
+                    $postPrice = $this->addDiscount($discount['value'], $postPrice);
                 }
             }
 
@@ -191,9 +228,9 @@ class FreeAddArticlesService
                 $product['freeAddArticles'] = $freeAddArticles[$key];
             }
 
-            $product['prePrice'] = $prePrice;
-            $product['payablePrice'] = $payablePrice;
-            $product['postPrice'] = $postPrice;
+            $product['prePrice'] = $this->formatNum($prePrice);
+            $product['payablePrice'] = $this->formatNum($payablePrice);
+            $product['postPrice'] = $this->formatNum($postPrice);
         }
 
         return $products;

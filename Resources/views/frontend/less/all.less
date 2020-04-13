@@ -75,3 +75,42 @@
         }
     }
 }
+
+.freju--discounts {
+    margin-bottom: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+
+    &__discount {
+        display: flex;
+        flex-wrap: wrap;
+        &_cell {
+            width: 50%;
+            font-size: 14px;
+            padding: 12px 16px;
+            background: #ebebeb;
+            color: #292929;
+
+            &:first-child, &:nth-child(2) {
+                padding-top: 12px;
+            }
+
+            &:last-child, &:nth-last-child(2) {
+                padding-bottom: 12px;
+            }
+
+            &:nth-child(2n) {
+                text-align: right;
+            }
+
+            &.freeAddArticle, &.discount {
+                background: #fcfcfc;
+            }
+
+            a {
+                color: #292929;
+                font-weight: 600;
+            }
+        }
+    }
+}
