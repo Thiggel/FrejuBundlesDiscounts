@@ -18,10 +18,12 @@
             border-radius: 50px;
             object-fit: cover;
             z-index: 1;
-            border: 2px solid #ebebeb;
+            border: 2px solid rgb(198,206,224);
         }
 
         a {
+            max-height: 100px;
+
             &:not(:first-child) {
                 margin-left: -50px;
             }
@@ -29,7 +31,7 @@
     }
 
     label {
-        background: #ebebeb;
+        background: rgb(198,206,224);
         color: #292929;
         padding: 8px 12px;
         border-radius: 5px;
@@ -50,11 +52,11 @@
     }
 
     &.listing {
-        top: 0px;
-        left: 8px;
-        transform: none;
         z-index: 999999999;
         max-width: 180px;
+        max-height: 100px;
+        max-height: 100px;
+        top: 45px;
 
         .freju--article__free-add-articles_images {
             img {
@@ -63,6 +65,8 @@
             }
 
             a {
+                max-height: 50px;
+
                 &:not(:first-child) {
                     margin-left: -10px;
                 }
@@ -88,7 +92,7 @@
             width: 50%;
             font-size: 14px;
             padding: 12px 16px;
-            background: #ebebeb;
+            background: rgb(198,206,224);
             color: #292929;
 
             &:first-child, &:nth-child(2) {
@@ -127,7 +131,7 @@
     color: rgba(57, 88, 154, 1);
     font-size: 16px;
     font-weight: 600;
-    background: rgba(57, 88, 154, 0.3);
+    background: rgb(198,206,224);
     border-radius: 5px;
 
     &_value, &_name {
@@ -151,7 +155,7 @@
     margin: 12px 0;
 
     &_label {
-        background: rgba(57, 88, 154, 0.3);
+        background: rgb(198,206,224);
         color: rgba(57, 88, 154, 1);
         padding: 4px 8px;
         border-radius: 4px;

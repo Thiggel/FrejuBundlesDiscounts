@@ -14,7 +14,7 @@
                 width: 50%;
                 font-size: 14px;
                 padding: 12px 16px;
-                background: #ebebeb;
+                background: rgb(198,206,224);
                 color: #292929;
             }
             .freju--discounts__discount_cell:first-child, .freju--discounts__discount_cell:nth-child(2) {

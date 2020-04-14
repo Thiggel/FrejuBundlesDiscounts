@@ -19,13 +19,16 @@
             border-radius: 50px;
             object-fit: cover;
             z-index: 1;
-            border: 2px solid #ebebeb;
+            border: 2px solid rgb(198,206,224);
+        }
+        .freju--article__free-add-articles_images a {
+            max-height: 100px;
         }
         .freju--article__free-add-articles_images a:not(:first-child) {
             margin-left: -50px;
         }
         .freju--article__free-add-articles label {
-            background: #ebebeb;
+            background: rgb(198,206,224);
             color: #292929;
             padding: 8px 12px;
             border-radius: 5px;
@@ -43,15 +46,17 @@
             content: "+ Gratis ";
         }
         .freju--article__free-add-articles.listing {
-            top: 0px;
-            left: 8px;
-            transform: none;
             z-index: 999999999;
             max-width: 180px;
+            max-height: 100px;
+            top: 45px;
         }
         .freju--article__free-add-articles.listing .freju--article__free-add-articles_images img {
             width: 50px;
             height: 50px;
+        }
+        .freju--article__free-add-articles.listing .freju--article__free-add-articles_images a {
+            max-height: 50px;
         }
         .freju--article__free-add-articles.listing .freju--article__free-add-articles_images a:not(:first-child) {
             margin-left: -10px;
@@ -60,6 +65,7 @@
             font-size: 12px;
             padding: 10px 12px;
         }
+
     </style>
 
     {if isset($freeAddArticles) && is_array($freeAddArticles)}
