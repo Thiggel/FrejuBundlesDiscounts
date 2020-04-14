@@ -157,6 +157,26 @@ class FreeAddArticlesService
     }
 
     /**
+     * @param int $id
+     * @return int
+     * @throws DBALException
+     */
+    public function getProdIdByBasketId(int $id) {
+        return $this->connection
+            ->query("SELECT articleID FROM s_order_basket WHERE id = '$id'")
+            ->fetchAll()[0]['articleID'];
+    }
+
+    public function convertToNum(string $num): float {
+        if(strpos($num, ',')) {
+            $num = str_replace(',', '', $num);
+            $num = (float)$num / 100;
+        }
+
+        return $num;
+    }
+
+    /**
      * @return array
      * @throws DBALException
      */
@@ -208,6 +228,7 @@ class FreeAddArticlesService
             $payablePrice = $product['price'];
             $prePrice = $product['price'];
             $postPrice = $product['price'];
+            $systemPrice = $product['price'];
 
             foreach($product['discounts'] as $discount) {
                 if($discount['discount_precalculated']) {
@@ -231,6 +252,7 @@ class FreeAddArticlesService
             $product['prePrice'] = $this->formatNum($prePrice);
             $product['payablePrice'] = $this->formatNum($payablePrice);
             $product['postPrice'] = $this->formatNum($postPrice);
+            $product['systemPrice'] = $systemPrice;
         }
 
         return $products;
