@@ -35,6 +35,7 @@
             {foreach $details as $item}
 
                 {$productDetails = $item['additional_details'].attributes.discounts->get('discounts')}
+                {$quantity = $item['quantity']}
                 {$discounts = $productDetails['discounts']}
 
                 {foreach $discounts as $discount}
@@ -42,8 +43,8 @@
 
                         <div class="freju--checkout__discount">
                             <div class="freju--checkout__discount_name">Cashback: {$discount['name']}</div>
-
-                            <div class="freju--checkout__discount_value">(- {$discount['absoluteValue']} €)</div>
+                            {$discountValue = $discount['absoluteValue'] * $quantity}
+                            <div class="freju--checkout__discount_value">(- {$discountValue|currency})</div>
 
                             <div class="freju--checkout__discount_description">Den Cashback-Betrag erhalten Sie nach Kauf und Registierung des Produkts bei {$item['additional_details']['supplierName']}</div>
                         </div>
@@ -63,7 +64,8 @@
                         <div class="freju--checkout__discount">
                             <div class="freju--checkout__discount_name">{$discount['name']}</div>
 
-                            <div class="freju--checkout__discount_value">- {$discount['absoluteValue']} €</div>
+                            {$discountValue = $discount['absoluteValue'] * $quantity}
+                            <div class="freju--checkout__discount_value">- {$discountValue|currency}</div>
                         </div>
 
                     {/if}

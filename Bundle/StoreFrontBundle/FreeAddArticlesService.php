@@ -208,12 +208,10 @@ class FreeAddArticlesService
                     'cashback' => $discount['cashback'],
                     'discount_precalculated' => $discount['discount_precalculated'],
                     'name' => $discount['name'],
-                    'absoluteValue' => $this->formatNum(
-                        $this->getAbsoluteValue(
-                            $discountValue,
-                            $discount['price'] * 1.19,
-                            $discount['discount_precalculated']
-                        )
+                    'absoluteValue' => $this->getAbsoluteValue(
+                        $discountValue,
+                        $discount['price'] * 1.19,
+                        $discount['discount_precalculated']
                     )
                 ];
 
@@ -249,9 +247,9 @@ class FreeAddArticlesService
                 $product['freeAddArticles'] = $freeAddArticles[$key];
             }
 
-            $product['prePrice'] = $this->formatNum($prePrice);
-            $product['payablePrice'] = $this->formatNum($payablePrice);
-            $product['postPrice'] = $this->formatNum($postPrice);
+            $product['prePrice'] = $prePrice;
+            $product['payablePrice'] = $payablePrice;
+            $product['postPrice'] = $postPrice;
             $product['systemPrice'] = $systemPrice;
         }
 
