@@ -203,7 +203,7 @@ class FreeAddArticlesService
 
                 $products[$discount['product_id']]['price'] = $discount['price'] * 1.19;
 
-                $products[$discount['product_id']]['discounts'][] = [
+                $products[$discount['product_id']]['discounts'][$discount['discount_id']] = [
                     'value' => $discountValue,
                     'cashback' => $discount['cashback'],
                     'discount_precalculated' => $discount['discount_precalculated'],
