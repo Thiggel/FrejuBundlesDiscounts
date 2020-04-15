@@ -35,7 +35,7 @@
             }
 
         </style>
-
+		
         <div class="freju--discounts">
             <div class="freju--discounts__discount">
                 <div class="freju--discounts__discount_cell">Unser regulärer Preis</div>

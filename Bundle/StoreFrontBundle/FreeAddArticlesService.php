@@ -195,7 +195,7 @@ class FreeAddArticlesService
         $nOfDiscounts = [];
 
         foreach($query as $discount) {
-            if($discount['active'] /* TODO: && startDate <= today && endDate >= today */) {
+            if($discount['active']  && empty($products[$discount['product_id']]['discounts'][$discount['discount_id']]) /* TODO: && startDate <= today && endDate >= today */) {
                 if(empty($nOfDiscounts[$discount['discount_id']])) $nOfDiscounts[$discount['discount_id']] = 0;
 
                 // get the nth discount (discounts are put into a string and separated with semicolon)
