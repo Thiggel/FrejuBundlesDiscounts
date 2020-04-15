@@ -3,8 +3,8 @@
         .freju--article__free-add-articles {
             position: absolute;
             top: 0;
-            right: 50%;
-            transform: translate(50%,-50%);
+            left: 0;
+    	    transform: translateY(-50%);
             z-index: 1;
             display: flex;
             flex-direction: column;
@@ -73,7 +73,8 @@
 
         <div class="freju--article__free-add-articles {$className}">
             <div class="freju--article__free-add-articles_images">
-                {foreach $freeAddArticles as $key => $article}
+		{$key = 0}
+                {foreach $freeAddArticles as $article}
                     {$name = $article['name']}
                     {$link = $article['url']}
                     {$img = $article['img']}
@@ -91,6 +92,8 @@
                     <a href="{$link}">
                         <img src="{$img}">
                     </a>
+
+		    {$key++}
                 {/foreach}
             </div>
 
