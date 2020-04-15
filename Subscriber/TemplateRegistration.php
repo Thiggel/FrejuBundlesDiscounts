@@ -40,7 +40,8 @@ class TemplateRegistration implements SubscriberInterface
     {
         return [
             'Enlight_Controller_Action_PreDispatch' => 'onPreDispatch',
-            'Shopware_Modules_Basket_UpdateArticle_FilterSqlDefaultParameters' => 'addDiscountsInCart'
+            'Shopware_Modules_Basket_UpdateArticle_FilterSqlDefaultParameters' => 'addDiscountsInCart',
+            'FrejuBundlesDiscounts_SparBundle_Create' => 'createBundle'
         ];
     }
 
@@ -67,5 +68,16 @@ class TemplateRegistration implements SubscriberInterface
         }
 
         return $basketItem;
+    }
+
+    /**
+     * @param \Enlight_Event_EventArgs $args
+     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function createBundle(\Enlight_Event_EventArgs $args) {
+        $id = $args->getReturn()['id'];
+
+        return $this->freeAddArticlesService->createProductBundle($id);
     }
 }

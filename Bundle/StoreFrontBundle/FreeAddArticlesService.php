@@ -255,4 +255,104 @@ class FreeAddArticlesService
 
         return $products;
     }
+
+    /**
+     * @param $name
+     * @param $quantity
+     * @param $price
+     * @param $categories
+     * @param $supplier
+     * @param $description
+     * @param $descriptionShort
+     * @return mixed
+     */
+    public function createNewArticle($name, $quantity, $price, $categories, $supplier, $description, $descriptionShort) {
+        $resource = \Shopware\Components\Api\Manager::getResource('article');
+
+        $articleData = array(
+            'name' => $name,
+            'taxId' => 1,
+            'mainDetail' => array(
+                'number' => $quantity,
+                'inStock' => 1,
+                'prices' => array(
+                    array(
+                        'customerGroupKey' =>'EK',
+                        'from' => 1,
+                        'to' => 'beliebig',
+                        'price' => $price,
+                        'basePrice' => 0,
+                        'percent' => 0
+                    )
+                ),
+            ),
+            'categories' => $categories,
+            'supplier' => $supplier,
+            'description' => $descriptionShort,
+            'descriptionLong' => $description,
+            'active' => true,
+        );
+
+        return $resource->create($articleData);
+    }
+
+    /**
+     * @param int $bundleId
+     * @return mixed
+     * @throws DBALException
+     */
+    public function createProductBundle(int $bundleId) {
+        $sql = "
+            SELECT a.name, a.description, a.description_long, a.supplierID, p.price, cat.id AS category, d.instock
+            FROM s_bundle b WHERE id = '$bundleId'
+            INNER JOIN related_product_id r ON r.bundle_id = b.id
+            INNER JOIN s_articles a ON r.product_id = a.id
+            INNER JOIN s_articles_prices p ON p.articleID = a.id
+            INNER JOIN s_articles_categories cat ON cat.articleID = a.id
+            INNER JOIN s_articles_details d ON d.articleID = a.id
+        ";
+
+        $products = $this->connection->query($sql)->fetchAll();
+
+        $name = "";
+        $desIntro = "Ein Produkt-Bundle aus folgenden Produkten: ";
+        $descriptionShort = $desIntro;
+        $descriptionLong = "";
+        $suppliers = [];
+        $categories = [];
+        $price = 0;
+        $instock = -1;
+
+        // accumulating attributes of products into single variables
+        foreach($products as $product) {
+            // name
+            $prodName = $product['name'];
+            $name = $name == "" ? $prodName : "$name + $prodName";
+
+            //price
+            $price += $product['price'] * 1.19;
+
+            // short description
+            if($descriptionShort != $desIntro) $descriptionShort .= ",";
+            $descriptionShort .= " " . $prodName;
+
+            // long description
+            $prodDesLong = $product['description_long'];
+            $descriptionLong .= "$prodName: $prodDesLong\n\n";
+
+            // category
+            if(!in_array($product['category'], $categories))
+                $categories[] = ['id' => $product['category']];
+
+            // supplier
+            if(!in_array($product['supplierID'], $suppliers))
+                $suppliers[] = ['id' => $product['supplierID']];
+
+            // instock
+            if($instock < 0 || $instock > $product['instock'])
+                $instock = $product['instock'];
+        }
+
+        return $this->createNewArticle($name, $instock, $price, $categories, $suppliers, $descriptionShort, $descriptionLong);
+    }
 }

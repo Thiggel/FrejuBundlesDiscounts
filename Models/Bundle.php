@@ -5,6 +5,8 @@ namespace FrejuBundlesDiscounts\Models;
 use Doctrine\Common\Collections\ArrayCollection;
 use Shopware\Components\Model\ModelEntity;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Events;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 
 /**
  * @ORM\Entity
@@ -222,5 +224,24 @@ class Bundle extends ModelEntity
         $this->relatedProducts = $relatedProducts;
 
         return $this;
+    }
+
+    /**
+     * @param LifecycleEventArgs $arguments
+     */
+    public function postPersist(LifecycleEventArgs $arguments)
+    {
+        /** @var ModelManager $modelManager */
+        $modelManager = $arguments->getEntityManager();
+
+        $model = $arguments->getEntity();
+
+        $bundleType = $model->getBundleType();
+        $id = $model->getId();
+
+        if($bundleType!= BUNDLE_SPAR)
+            return;
+
+        Shopware()->Events()->notify("FrejuBundlesDiscounts_SparBundle_Create", ['id' => $id]);
     }
 }
