@@ -159,9 +159,9 @@ class ListProductService implements ListProductServiceInterface
                 $product->setCategories($categories[$number]);
             }
 
-            if (isset($manufacturerCovers[$product->getManufacturer()->getCoverId()])) {
-                $product->getManufacturer()->setCoverMedia($manufacturerCovers[$product->getManufacturer()->getCoverId()]);
-            }
+//            if (isset($manufacturerCovers[$product->getManufacturer()->getCoverId()])) {
+////                $product->getManufacturer()->setCoverMedia($manufacturerCovers[$product->getManufacturer()->getCoverId()]);
+////            }
 
             $product->addAttribute('marketing', $this->marketingService->getProductAttribute($product));
 
