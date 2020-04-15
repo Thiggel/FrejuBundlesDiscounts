@@ -239,10 +239,10 @@ class ListProductService implements ListProductServiceInterface
      */
     private function getManufacturerCoverIds($products)
     {
-        $ids = array_map(function (Struct\ListProduct $product) {
-            return $product->getManufacturer()->getCoverId();
-        }, $products);
+//        $ids = array_map(function (Struct\ListProduct $product) {
+//            return $product->getManufacturer()->getCoverId();
+//        }, $products);
 
-        return array_filter($ids);
+        return []; //array_filter($ids);
     }
 }

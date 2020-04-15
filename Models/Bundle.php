@@ -228,6 +228,7 @@ class Bundle extends ModelEntity
 
     /**
      * @param LifecycleEventArgs $arguments
+     * @throws \Enlight_Event_Exception
      */
     public function postPersist(LifecycleEventArgs $arguments)
     {
