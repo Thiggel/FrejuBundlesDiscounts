@@ -2,14 +2,9 @@
     <style>
         .freju--article__free-add-articles {
             position: absolute;
+            z-index: 999999;
             top: 0;
             left: 0;
-<<<<<<< HEAD
-    	    transform: translateY(-50%);
-=======
-            transform: translateY(-50%);
->>>>>>> feeb9b25d3e1946ccdb3796cf1b3955447255294
-            z-index: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -51,6 +46,7 @@
         }
         .freju--article__free-add-articles.listing {
             z-index: 999999999;
+	    transform: translateY(-50%);
             max-width: 180px;
             max-height: 100px;
             top: 45px;
@@ -77,11 +73,7 @@
 
         <div class="freju--article__free-add-articles {$className}">
             <div class="freju--article__free-add-articles_images">
-<<<<<<< HEAD
 		{$key = 0}
-=======
-                {$key = 0}
->>>>>>> feeb9b25d3e1946ccdb3796cf1b3955447255294
                 {foreach $freeAddArticles as $article}
                     {$name = $article['name']}
                     {$link = $article['url']}
@@ -101,11 +93,7 @@
                         <img src="{$img}">
                     </a>
 
-<<<<<<< HEAD
-		    {$key++}
-=======
-                    {$key++}
->>>>>>> feeb9b25d3e1946ccdb3796cf1b3955447255294
+		    {$key = $key+1}
                 {/foreach}
             </div>
 
