@@ -40,7 +40,7 @@ class TemplateRegistration implements SubscriberInterface
     {
         return [
             'Enlight_Controller_Action_PreDispatch' => 'onPreDispatch',
-            'Shopware_Modules_Basket_UpdateArticle_FilterSqlDefaultParameters' => 'addDiscountsInCart',
+            'Shopware_Modules_Basket_UpdateArticle_FilterSqlDefaultParameters' => 'updateDiscountsInCart',
             'FrejuBundlesDiscounts_SparBundle_Create' => 'createBundle'
         ];
     }
@@ -55,11 +55,12 @@ class TemplateRegistration implements SubscriberInterface
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function addDiscountsInCart(\Enlight_Event_EventArgs $args) {
+    public function updateDiscountsInCart(\Enlight_Event_EventArgs $args) {
         $basketItem = $args->getReturn();
+
         $gross = &$basketItem[1];
         $net = &$basketItem[2];
-        $id = $this->freeAddArticlesService->getProdIdByBasketId($basketItem[6]);
+        $id = $this->freeAddArticlesService->getProdIdByBasketId($basketItem[5]);
         $discounts = $this->freeAddArticlesService->getDiscounts();
 
         if(isset($discounts[$id])) {
@@ -68,6 +69,17 @@ class TemplateRegistration implements SubscriberInterface
         }
 
         return $basketItem;
+    }
+
+    /**
+     * @param \Enlight_Event_EventArgs $args
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function addDiscountsInCart(\Enlight_Event_EventArgs $args) {
+        $basketId = $args->get('id');
+        $id = $this->freeAddArticlesService->getProdIdByBasketId($basketId);
+
+        //$this->freeAddArticlesService->addDiscountsCart($id);
     }
 
     /**
