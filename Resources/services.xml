@@ -27,5 +27,14 @@
             <argument type="service" id="shopware_storefront.free_add_articles_service"/>
             <tag name="shopware.event_subscriber"/>
         </service>
+
+        <service id="freju_bundles_discounts.subscriber.basket" class="FrejuBundlesDiscounts\Subscriber\BasketSubscriber">
+            <argument type="service" id="freju_bundles_discounts.discount_applier.configurator_bundle"/>
+            <tag name="shopware.event_subscriber"/>
+        </service>
+
+        <service id="freju_bundles_discounts.discount_applier.configurator_bundle" class="FrejuBundlesDiscounts\Bundle\StoreFrontBundle\ConfiguratorBundleDiscountApplierService">
+            <argument type="service" id="models"/>
+        </service>
     </services>
 </container>

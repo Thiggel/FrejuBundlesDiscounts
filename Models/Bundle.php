@@ -7,6 +7,7 @@ use Shopware\Components\Model\ModelEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Shopware\Models\Article\Article;
 
 /**
  * @ORM\Entity
@@ -173,10 +174,7 @@ class Bundle extends ModelEntity
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getMainProduct() {
+    public function getMainProduct(): Article {
         return $this->mainProduct;
     }
 
