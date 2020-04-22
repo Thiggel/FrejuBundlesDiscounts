@@ -18,7 +18,7 @@
                  decorates="shopware_storefront.list_product_service"
                  public="false">
 
-            <argument type="service" id="shopware_storefront.list_product_service.inner"/>
+            <argument type="service" id="freju_bundles_discounts.list_product_service.inner"/>
             <argument type="service" id="freju_bundles_discounts.free_add_articles_service"/>
             <argument type="service" id="freju_bundles_discounts.discount_service"/>
         </service>
