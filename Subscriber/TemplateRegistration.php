@@ -5,6 +5,7 @@ namespace FrejuBundlesDiscounts\Subscriber;
 use Enlight\Event\SubscriberInterface;
 use FrejuBundlesDiscounts\Bundle\StoreFrontBundle\FreeAddArticlesService;
 use FrejuBundlesDiscounts\Bundle\StoreFrontBundle\DiscountService;
+use FrejuBundlesDiscounts\Models\Bundle;
 
 class TemplateRegistration implements SubscriberInterface
 {
@@ -33,7 +34,8 @@ class TemplateRegistration implements SubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            'Enlight_Controller_Action_PreDispatch' => 'onPreDispatch'
+            'Enlight_Controller_Action_PreDispatch' => 'onPreDispatch',
+            Bundle::class . '::postUpdate' => 'upsertBundle',
         ];
     }
 
@@ -42,4 +44,15 @@ class TemplateRegistration implements SubscriberInterface
         $this->templateManager->addTemplateDir($this->pluginDirectory . '/Resources/views');
     }
 
+    public function upsertBundle(\Enlight_Event_EventArgs $arguments)
+    {
+        /** @var Bundle $bundle */
+        $bundle = $arguments->getEntity();
+
+        if ($bundle->getBundleType() != Bundle::BUNDLE_SPAR) {
+            return;
+        }
+
+        $this->freeAddArticlesService->upsertProductBundle($bundle->getId());
+    }
 }

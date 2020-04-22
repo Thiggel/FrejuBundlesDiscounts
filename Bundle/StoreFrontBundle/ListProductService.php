@@ -28,7 +28,7 @@ class ListProductService implements ListProductServiceInterface
 
     private function addDiscounts($product)
     {
-        $freeAddArticles = $this->freeAddArticlesService->getList();
+        $freeAddArticles = $this->discountService->getList();
         $discounts = $this->discountService->getDiscounts();
 
         if(isset($freeAddArticles[$product->getId()])) {

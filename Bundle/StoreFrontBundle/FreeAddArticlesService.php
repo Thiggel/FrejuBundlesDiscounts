@@ -5,6 +5,9 @@ namespace FrejuBundlesDiscounts\Bundle\StoreFrontBundle;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Shopware\Bundle\StoreFrontBundle\Struct\Category;
+use Shopware\Components\Api\Exception\NotFoundException;
+use Shopware\Components\Api\Manager;
+use Shopware\Components\Api\Resource\Article;
 use Shopware\Components\Routing\Context;
 
 class FreeAddArticlesService
@@ -22,75 +25,92 @@ class FreeAddArticlesService
         $this->connection = $connection;
     }
 
-    /**
-     * @return Category[] indexed by product id
-     * @throws DBALException
-     */
-    public function getList()
-    {
-        return $this->getFreeProducts();
-    }
-
-    private function getImage(int $id): string
-    {
-        $media = Shopware()->Models()->getRepository('Shopware\Models\Media\Media')->findOneBy(['id' => $id]);
-
-        if ($media)
-            return Shopware()->Container()->get('shopware_media.media_service')->getUrl($media->getPath());
-
-        return "";
-    }
-
-    private function getUrl(int $id): string
-    {
-        // Context
-        $shop = Shopware()->Models()->getRepository(\Shopware\Models\Shop\Shop::class)->getById(1);
-        $shopContext = Context::createFromShop($shop, Shopware()->Container()->get('config'));
-
-
-        // get seo url
-        $query = [
-            'module' => 'frontend',
-            'controller' => 'detail',
-            'sArticle' => $id,
-        ];
-
-        return Shopware()->Router()->assemble($query, $shopContext);
-
-    }
-
-    private function getFreeProducts(): array
-    {
+    public function upsertProductBundle(int $bundleId) {
         $sql = "
-            SELECT s_bundle.main_product_id, p.price, product_id, s_articles_img.media_id AS image_id, s_articles.name
-            FROM related_product_id
-            INNER JOIN s_bundle ON s_bundle.id = related_product_id.bundle_id
-            INNER JOIN s_articles_img ON s_articles_img.articleID = product_id
-            INNER JOIN s_articles ON s_articles.id = product_id
-            INNER JOIN s_articles_prices p ON p.articleID = product_id
+            SELECT DISTINCT a.name, a.description, a.description_long, a.supplierID, p.price * (1 - b.bundleBonus / 100) AS price, GROUP_CONCAT(DISTINCT cat.categoryid) AS categories, d.instock
+            FROM s_bundle b
+            INNER JOIN related_product_id r ON r.bundle_id = b.id
+            INNER JOIN s_articles a ON r.product_id = a.id
+            INNER JOIN s_articles_prices p ON p.articleID = a.id
+            INNER JOIN s_articles_categories cat ON cat.articleID = a.id
+            INNER JOIN s_articles_details d ON d.articleID = a.id
+            WHERE b.id = '$bundleId'
+            GROUP BY a.id
         ";
 
-        $query = $this->connection->query($sql)->fetchAll();
+        $products = $this->connection->query($sql)->fetchAll();
 
-        $products = [];
+        $name = "";
+        $desIntro = "Ein Produkt-Bundle aus folgenden Produkten: ";
+        $descriptionShort = $desIntro;
+        $descriptionLong = "";
+        $suppliers = [];
+        $categories = [];
+        $price = 0;
+        $instock = -1;
 
-        foreach($query as $relations) {
-            $img = $this->getImage($relations['image_id']);
-            $id = $relations['product_id'];
-            $name = $relations['name'];
-            $url = $this->getUrl($id);
-            $price = $relations['price'] * 1.19;
+        // accumulating attributes of products into single variables
+        foreach($products as $product) {
+            // name
+            $prodName = $product['name'];
+            $name = $name == "" ? $prodName : "$name + $prodName";
 
-            $products[$relations['main_product_id']][$id] = [
-                'id' => $id,
-                'name' => $name,
-                'img' => $img,
-                'url' => $url,
-                'price' => $price
-            ];
+            //price
+            $price += $product['price'] * 1.19;
+
+            // short description
+            if($descriptionShort != $desIntro) $descriptionShort .= ",";
+            $descriptionShort .= " " . $prodName;
+
+            // long description
+            $prodDesLong = $product['description_long'];
+            $descriptionLong .= "$prodName: $prodDesLong\n\n";
+
+            $categories = array_unique(array_merge($categories, explode(',', $product['categories'])));
+
+            // supplier
+            if(!in_array($product['supplierID'], $suppliers))
+                $suppliers[] = ['id' => $product['supplierID']];
+
+            // instock
+            if($instock < 0 || $instock > $product['instock'])
+                $instock = $product['instock'];
         }
 
-        return $products;
-    }
+        /** @var Article $article */
+        $article = Manager::getResource('article');
 
+        $articleNumber = 'BUNDLE-' . $bundleId;
+
+        $articleData = [
+            'name' => $name,
+            'taxId' => 1,
+            'mainDetail' => [
+                'number' => $articleNumber,
+                'inStock' => $instock,
+                'prices' => [
+                    [
+                        'customerGroupKey' =>'EK',
+                        'from' => 1,
+                        'to' => 'beliebig',
+                        'price' => $price,
+                        'basePrice' => 0,
+                        'percent' => 0
+                    ]
+                ],
+            ],
+            'categories' => $categories,
+            'supplier' => $suppliers,
+            'description' => $descriptionShort,
+            'descriptionLong' => $descriptionLong,
+            'active' => true,
+        ];
+
+        try {
+            $article->updateByNumber($articleNumber, $articleData);
+        }
+        catch (NotFoundException $ignored) {
+            $article->create($articleData);
+        }
+    }
 }
