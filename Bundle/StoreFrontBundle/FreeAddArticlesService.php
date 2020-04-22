@@ -355,4 +355,6 @@ class FreeAddArticlesService
 
         return $this->createNewArticle($name, $instock, $price, $categories, $suppliers, $descriptionShort, $descriptionLong);
     }
+
+
 }
