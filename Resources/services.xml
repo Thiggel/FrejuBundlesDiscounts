@@ -11,6 +11,7 @@
         <service id="freju_bundles_discounts.discount_service"
                  class="FrejuBundlesDiscounts\Bundle\StoreFrontBundle\DiscountService">
             <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="freju_bundles_discounts.free_add_articles_service"/>
         </service>
 
         <service id="freju_bundles_discounts.list_product_service"
@@ -26,8 +27,6 @@
         <service id="freju_bundles_discounts.subscriber.templates" class="FrejuBundlesDiscounts\Subscriber\TemplateRegistration">
             <argument>%freju_bundles_discounts.plugin_dir%</argument>
             <argument type="service" id="template"/>
-            <argument type="service" id="freju_bundles_discounts.free_add_articles_service"/>
-            <argument type="service" id="freju_bundles_discounts.discount_service"/>
             <tag name="shopware.event_subscriber"/>
         </service>
 
@@ -39,6 +38,15 @@
 
         <service id="freju_bundles_discounts.discount_applier.configurator_bundle" class="FrejuBundlesDiscounts\Bundle\StoreFrontBundle\ConfiguratorBundleDiscountApplierService">
             <argument type="service" id="models"/>
+        </service>
+
+        <service id="freju_bundles_discounts.product_bundle.creator" class="FrejuBundlesDiscounts\Bundle\StoreFrontBundle\ProductBundleCreatorService">
+            <argument type="service" id="dbal_connection"/>
+        </service>
+
+        <service id="freju_bundles_discounts.subscriber.bundle" class="FrejuBundlesDiscounts\Subscriber\BundleSubscriber">
+            <argument type="service" id="freju_bundles_discounts.product_bundle.creator"/>
+            <tag name="shopware.event_subscriber"/>
         </service>
     </services>
 </container>

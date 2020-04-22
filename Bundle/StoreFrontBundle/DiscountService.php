@@ -3,9 +3,6 @@
 namespace FrejuBundlesDiscounts\Bundle\StoreFrontBundle;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
-use Shopware\Bundle\StoreFrontBundle\Struct\Category;
-use Shopware\Components\Routing\Context;
 
 class DiscountService
 {
@@ -14,26 +11,15 @@ class DiscountService
      */
     private $connection;
 
+    private $freeAddArticlesService;
+
     /**
      * @param Connection $connection
      */
-    public function __construct(Connection $connection)
+    public function __construct(Connection $connection, FreeAddArticlesService $freeAddArticlesService)
     {
         $this->connection = $connection;
-    }
-
-    /**
-     * @return Category[] indexed by product id
-     * @throws DBALException
-     */
-    public function getList()
-    {
-        return $this->getFreeProducts();
-    }
-
-    private function formatNum(number $n): string
-    {
-        return number_format($n, 2, ',', '.');
+        $this->freeAddArticlesService = $freeAddArticlesService;
     }
 
     private function removeDiscount(string $discount, int $price): float
@@ -115,7 +101,7 @@ class DiscountService
             }
         }
 
-        $freeAddArticles = $this->getFreeProducts();
+        $freeAddArticles = $this->freeAddArticlesService->getFreeProducts();
 
         foreach($products as $key => &$product) {
             $payablePrice = $product['price'];
