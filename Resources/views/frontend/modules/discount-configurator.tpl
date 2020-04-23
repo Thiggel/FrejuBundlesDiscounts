@@ -237,7 +237,7 @@
 
             methods: {
                 addToCart: function() {
-                    fetch('/checkout/ajaxAddArticleCart?sAdd=' + this.product.ordernumber + '&sQuantity=' + this.quantity)
+                    fetch('/staging/checkout/ajaxAddArticleCart?sAdd=' + this.product.ordernumber + '&sQuantity=' + this.quantity)
                         .then((response) => {
                             return response.json();
                         }).then((data) => {
@@ -248,7 +248,7 @@
                 removeFromCart: function() {
                     console.log(this.product);
 
-                    fetch('checkout/ajaxDeleteArticleCart/sDelete/' + this.product.id, {
+                    fetch('/staging/checkout/ajaxDeleteArticleCart/sDelete/' + this.product.id, {
                         method: 'POST'
                     })
                     .then((response) => {
@@ -261,7 +261,7 @@
                 },
 
                 changeQuantity: function() {
-                    fetch('/checkout/changeQuantity/sTargetAction/cart?sArticle=' + this.product.id + '&sQuantity=' + this.quantity)
+                    fetch('/staging/checkout/changeQuantity/sTargetAction/cart?sArticle=' + this.product.id + '&sQuantity=' + this.quantity)
                         .then((response) => {
                             return response.json();
                         }).then((data) => {
@@ -301,14 +301,14 @@
             },
 
             mounted() {
-                fetch('/frontend/bundles/configurator')
+                fetch('/staging/frontend/bundles/configurator')
                         .then((response) => {
                             return response.json();
                         })
                         .then((data) => {
                             this.bundleProducts = data;
 
-                            fetch('/frontend/bundles/basket')
+                            fetch('/staging/frontend/bundles/basket')
                                     .then((response) => {
                                         return response.json();
                                     })
