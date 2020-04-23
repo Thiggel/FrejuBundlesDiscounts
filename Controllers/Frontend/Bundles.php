@@ -26,6 +26,7 @@ class Shopware_Controllers_Frontend_Bundles extends Enlight_Controller_Action
                    s_articles_details.ean,
                    s_articles.active,
                    s_articles_details.instock,
+                   s_articles_details.ordernumber,
                    s_articles_details.minpurchase,
                    s_articles_details.shippingtime,
                    s_articles_details.releasedate

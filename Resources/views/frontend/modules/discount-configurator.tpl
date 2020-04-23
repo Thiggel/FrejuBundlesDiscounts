@@ -3,11 +3,122 @@
         #freju-discount-configurator {
             margin: 24px 0;
         }
-
+        #freju-discount-configurator h2 {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 24px;
+            margin-top: 36px;
+        }
+        #freju-discount-configurator h3 {
+            font-size: 20px;
+            font-weight: 400;
+            margin: 16px 0;
+        }
+        #freju-discount-configurator button {
+            background: #3b5999;
+            margin: 12px;
+            border-radius: 5px;
+            padding: 12px 16px;
+            color: #fff;
+            border: none;
+            font-size: 16px;
+            transition: all 0.25s ease;
+        }
+        #freju-discount-configurator button:hover {
+            opacity: 0.85;
+        }
+        #freju-discount-configurator .close-button {
+            transform: rotate(45deg);
+            font-size: 40px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            margin-left: 16px;
+        }
+        #freju-discount-configurator .close-button:hover {
+            transform: scale(1.2) rotate(45deg);
+        }
         .freju-dropdown {
             display: block;
             width: 100% !important;
+            background: #fbfbfb !important;
+            border: 1px solid #ebebeb !important;
+            box-shadow: none !important;
+            padding: 16px 20px !important;
+            font-size: 16px !important;
+            margin: 16px 0 !important;
+            border-radius: 5px !important;
         }
+        .freju-dropdown-wrapper .search-results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .freju-list-item {
+            display: flex;
+            align-items: center;
+            margin-top: 16px;
+            border-radius: 5px;
+            background: #fbfbfb;
+            padding: 24px;
+            cursor: pointer;
+        }
+        .freju-list-item .quantity {
+            border-radius: 5px;
+            background: #ebebeb;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            text-align: center;
+            max-width: 60px;
+            outline: none;
+        }
+        .freju-list-item .image {
+            width: 150px;
+            height: 150px;
+            background-size: cover;
+            margin: 0 24px;
+            border-radius: 10px;
+        }
+        .freju-list-item .details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            font-size: 16px;
+        }
+        .freju-list-item .details .name {
+            font-size: 20px;
+            font-weight: 600;
+            padding-bottom: 8px;
+        }
+        .freju-list-item .details .shipping-information {
+            background: rgba(57,88,154,0.3);
+            color: #39589a;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-top: 8px;
+            display: inline-block;
+        }
+        .freju-list-item .cart-details {
+            margin-left: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .freju-list-item .cart-details .price {
+            font-size: 20px;
+        }
+        .freju-list-item .cart-details .add-to-cart-wrapper {
+            margin-top: 12px;
+            display: flex;
+        }
+        .freju-list-item .cart-details .add-to-cart-wrapper .add-to-cart-button {
+            margin: 0 !important;
+            margin-left: 8px !important;
+        }
+
     </style>
 
     <div id="freju-discount-configurator">
@@ -24,6 +135,8 @@
     <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
 
     <script>
+
+
         Vue.component('dropdown', {
             props: {
                 products: Array
@@ -97,9 +210,15 @@
                 }
             },
 
+            mounted: function() {
+                if(this.type == 'cart') {
+                    this.quantity = this.product.quantity;
+                }
+            },
+
             template:
-                '<div class="freju-list-item">' +
-                    '<input class="quantity" :value="product.quantity" @change="changeQuantity" v-if="type == \'cart\'">' +
+                '<div class="freju-list-item" @click="goToUrl(product.url)">' +
+                    '<input class="quantity" v-model="quantity" @change="changeQuantity" @click.stop="" v-if="type == \'cart\'">' +
                     '<div class="image" :style="\'background-image: url(\' + product.image + \')\'" />' +
                     '<div class="details">' +
                         '<div class="name">%% product.name %%</div>' +
@@ -109,33 +228,49 @@
                     '<div class="cart-details">' +
                         '<div class="price">%% price %%</div>' +
                         '<div class="add-to-cart-wrapper" v-if="type == \'search\'">' +
-                            '<input class="quantity" v-model="quantity">' +
-                            '<button class="add-to-cart-button" @click="addToCart">In den Warenkorb</button>' +
+                            '<input class="quantity" v-model="quantity" @click.stop="">' +
+                            '<button class="add-to-cart-button" @click.stop="addToCart">In den Warenkorb</button>' +
                         '</div>' +
                     '</div>' +
-                    '<div class="close-button" v-if="type == \'cart\'" @click="removeFromCart">+</div>' +
+                    '<div class="close-button" v-if="type == \'cart\'" @click.stop="removeFromCart">+</div>' +
                 '</div>',
 
             methods: {
                 addToCart: function() {
-                    fetch('/checkout/ajaxAddArticleCart?sAdd=orderNumber')
-                        .then(function(response) {
-
+                    fetch('/checkout/ajaxAddArticleCart?sAdd=' + this.product.ordernumber + '&sQuantity=' + this.quantity)
+                        .then((response) => {
+                            return response.json();
+                        }).then((data) => {
+                            viewModel.data.bundleProducts.push(this.product);
                         });
                 },
 
                 removeFromCart: function() {
-                    fetch('/checkout/ajaxAddArticleCart?sAdd=orderNumber')
-                            .then(function(response) {
+                    console.log(this.product);
 
-                            });
+                    fetch('checkout/ajaxDeleteArticleCart/sDelete/' + this.product.id, {
+                        method: 'POST'
+                    })
+                    .then((response) => {
+                        return response.json();
+                    }).then((data) => {
+                        viewModel.data.bundleProducts = viewModel.data.bundleProducts.filter(function(item) {
+                            return item.id !== this.product.id;
+                        });
+                    });
                 },
 
                 changeQuantity: function() {
-                    fetch('/checkout/ajaxAddArticleCart?sAdd=orderNumber')
-                            .then(function(response) {
+                    fetch('/checkout/changeQuantity/sTargetAction/cart?sArticle=' + this.product.id + '&sQuantity=' + this.quantity)
+                        .then((response) => {
+                            return response.json();
+                        }).then((data) => {
+                            console.log(data);
+                        });
+                },
 
-                            });
+                goToUrl: function(url) {
+                    location.href = url;
                 }
             }
         });
@@ -156,72 +291,53 @@
 
         });
 
-        new Vue({
+        var viewModel = new Vue({
             el: '#freju-discount-configurator',
             delimiters: ['%%', '%%'],
 
             data: {
-                bundleProducts: [
-                    {
-                        id: 1,
-                        image: 'http://localhost:8888/media/image/5b/48/11/Beistelltisch-weiss-schraeg_200x200.jpg',
-                        name: 'Canon Camera',
-                        price: 3499,
-                        bonus: 0.08,
-                        ean: 1234567890,
-                        shippingInfo: 'Sofort Lieferbar'
-                    },
-                    {
-                        id: 2,
-                        image: 'http://localhost:8888/media/image/90/82/c4/Briefkasten_200x200.jpg',
-                        name: 'Nikon Camera',
-                        price: 1599,
-                        bonus: 0.2,
-                        ean: 243514567,
-                        shippingInfo: 'Sofort Lieferbar'
-                    },
-                    {
-                        id: 3,
-                        image: 'http://localhost:8888/media/image/5b/48/11/Beistelltisch-weiss-schraeg_200x200.jpg',
-                        name: 'Canon Camera Gehäuse',
-                        price: 499,
-                        bonus: 0.08,
-                        ean: 1234567890,
-                        shippingInfo: 'Sofort Lieferbar'
-                    },
-                    {
-                        id: 4,
-                        image: 'http://localhost:8888/media/image/90/82/c4/Briefkasten_200x200.jpg',
-                        name: 'Nikon Camera Stativ',
-                        price: 299,
-                        bonus: 0.2,
-                        ean: 243514567,
-                        shippingInfo: 'Sofort Lieferbar'
-                    }
-                ],
+                bundleProducts: [],
+                basketProducts: []
+            },
 
-                basketProducts: [
-                    {
-                        id: 1,
-                        image: 'http://localhost:8888/media/image/5b/48/11/Beistelltisch-weiss-schraeg_200x200.jpg',
-                        name: 'Canon Camera',
-                        price: 3499,
-                        bonus: 0.08,
-                        ean: 1234567890,
-                        shippingInfo: 'Sofort Lieferbar',
-                        quantity: 1
-                    },
-                    {
-                        id: 2,
-                        image: 'http://localhost:8888/media/image/90/82/c4/Briefkasten_200x200.jpg',
-                        name: 'Nikon Camera',
-                        price: 1599,
-                        bonus: 0.2,
-                        ean: 243514567,
-                        shippingInfo: 'Sofort Lieferbar',
-                        quantity: 2
-                    }
-                ]
+            mounted() {
+                fetch('/frontend/bundles/configurator')
+                        .then((response) => {
+                            return response.json();
+                        })
+                        .then((data) => {
+                            this.bundleProducts = data;
+
+                            fetch('/frontend/bundles/basket')
+                                    .then((response) => {
+                                        return response.json();
+                                    })
+                                    .then((data) => {
+                                        var vm = this;
+
+                                        this.basketProducts = data.content.filter(function(item) {
+                                            return vm.bundleProducts.some(function(el) {
+                                                return el.id == item.articleID;
+                                            });
+                                        });
+
+                                        this.basketProducts.map(function(item) {
+                                            item.name = item.articlename;
+                                            item.id = item.articleID;
+                                            item.price = parseFloat(item.price);
+                                            item.url = item.linkDetails;
+                                            item.image = item.image.source;
+
+                                            return item;
+                                        });
+
+                                        console.log(this.basketProducts);
+                                    });
+                        });
+            },
+
+            methods: {
+
             }
         });
     </script>
