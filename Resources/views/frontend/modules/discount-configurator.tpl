@@ -1,13 +1,29 @@
 {block name="frontend_freju_discount_configurator"}
     <style>
+        [v-cloak] {
+            display: none;
+        }
         #freju-discount-configurator {
             margin: 24px 0;
+            padding: 24px;
+            background: #ebebeb;
+            border-radius: 10px;
+            color: #5f7285;
+        }
+        #freju-discount-configurator h1,
+        #freju-discount-configurator h2,
+        #freju-discount-configurator h3 {
+            text-transform: uppercase;
+        }
+
+        #freju-discount-configurator h1 {
+            font-weight: 600;
+            margin-top: 12px;
         }
         #freju-discount-configurator h2 {
             font-size: 24px;
             font-weight: 400;
-            margin-bottom: 24px;
-            margin-top: 36px;
+            margin: 24px 0;
         }
         #freju-discount-configurator h3 {
             font-size: 20px;
@@ -23,6 +39,7 @@
             border: none;
             font-size: 16px;
             transition: all 0.25s ease;
+            outline: none;
         }
         #freju-discount-configurator button:hover {
             opacity: 0.85;
@@ -32,10 +49,15 @@
             font-size: 40px;
             transition: all 0.25s ease;
             cursor: pointer;
-            margin-left: 16px;
         }
         #freju-discount-configurator .close-button:hover {
             transform: scale(1.2) rotate(45deg);
+        }
+        #freju-discount-configurator .empty-state {
+            font-size: 16px;
+            padding: 20px;
+            border-radius: 5px;
+            background: #fbfbfb;
         }
         .freju-dropdown {
             display: block;
@@ -47,6 +69,12 @@
             font-size: 16px !important;
             margin: 16px 0 !important;
             border-radius: 5px !important;
+        }
+        .freju-dropdown-wrapper .search-results {
+            background: #dbdbdb;
+            margin-left: -24px;
+            margin-right: -24px;
+            padding: 24px;
         }
         .freju-dropdown-wrapper .search-results-header {
             display: flex;
@@ -77,7 +105,10 @@
         .freju-list-item .image {
             width: 150px;
             height: 150px;
-            background-size: cover;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-color: #fff;
+            background-position: center center;
             margin: 0 24px;
             border-radius: 10px;
         }
@@ -109,6 +140,7 @@
         }
         .freju-list-item .cart-details .price {
             font-size: 20px;
+            margin-right: 16px;
         }
         .freju-list-item .cart-details .add-to-cart-wrapper {
             margin-top: 12px;
@@ -117,16 +149,22 @@
         .freju-list-item .cart-details .add-to-cart-wrapper .add-to-cart-button {
             margin: 0 !important;
             margin-left: 8px !important;
+            max-height: 45px;
         }
 
     </style>
 
-    <div id="freju-discount-configurator">
+    <div id="freju-discount-configurator" v-cloak>
+        <h1>Freier Rabatt-Konfigurator</h1>
         <h2>Je mehr Sie bestellen, desto höher Ihr Bundle-Bonus</h2>
-        <dropdown :products="bundleProducts"></dropdown>
+        <dropdown :products="bundleProducts" @add-to-cart="getBasket"></dropdown>
 
-        <h3>Bundle-Produkte im Warenkorb</h3>
-        <product-listing :products="basketProducts" type="cart"></product-listing>
+        <loader v-if="basketLoading"></loader>
+        <div class="freju-basket" v-else>
+            <h3>Bundle-Produkte im Warenkorb</h3>
+            <product-listing :products="basketProducts" type="cart" v-if="basketProducts[0]" @remove-product="removeFromCart"></product-listing>
+            <div class="empty-state" v-else>Bisher befinden sich keine Produkte mit Konfigurator-Rabatt in Ihrem Warenkorb</div>
+        </div>
     </div>
 
     <!-- development version, includes helpful console warnings -->
@@ -135,7 +173,50 @@
     <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
 
     <script>
+        Vue.mixin({
+            methods: {
+                getStaging: function() {
+                    return location.href.includes('staging') ? '/staging/' : '/';
+                },
 
+                getCSRFToken: function() {
+                    return document.cookie.replace(/(?:(?:^|.*;\s*)__csrf_token-1\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+                }
+            }
+        });
+
+        Vue.component('loader', {
+            props: {
+                noMargin: Boolean,
+                small: Boolean,
+                color: String
+            },
+
+            computed: {
+                css: function() {
+                    return {
+                        margin: this.noMargin ? 0 : '24px auto',
+                        background: 'none',
+                        display: 'block',
+                        shapeRendering: 'auto',
+                        width: this.small ? '20px' : 'auto',
+                        height: this.small ? '20px' : 'auto'
+                    }
+                },
+
+                stroke: function() {
+                    return this.color ? this.color : '#5f7285';
+                }
+            },
+
+            template:
+                    '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" :style="css" width="45px" height="45px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">\n' +
+                        '<circle cx="50" cy="50" fill="none" :stroke="stroke" stroke-width="15" r="38" stroke-dasharray="179.0707812546182 61.690260418206066" transform="rotate(305.938 50 50)">\n' +
+                            '<animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>\n' +
+                        '</circle>' +
+                    '</svg>'
+
+        });
 
         Vue.component('dropdown', {
             props: {
@@ -168,12 +249,13 @@
             template:
                     '<div class="freju-dropdown-wrapper">' +
                         '<input type="text" class="freju-dropdown" placeholder="Nach Artikeln suchen…" v-model="searchRequest">' +
-                        '<div class="search-results" v-if="results[0]">' +
+                        '<div class="search-results" v-if="searchRequest">' +
                             '<div class="search-results-header">' +
                                 '<h3>Suchergebnisse</h3>' +
-                                '<div class="close-button">+</div>' +
+                                '<div class="close-button" @click="searchRequest = \'\'">+</div>' +
                             '</div>' +
-                            '<product-listing :products="results" type="search"></product-listing>' +
+                            '<product-listing :products="results" type="search" v-if="results[0]" @add-to-cart="addToCart"></product-listing>' +
+                            '<div class="empty-state" v-else>Zu Ihrer Suche wurden leider keine passenden Produkte gefunden</div>' +
                         '</div>' +
                     '</div>',
 
@@ -187,6 +269,10 @@
 
                     this.shownUserList = results
                 },
+
+                addToCart: function() {
+                    this.$emit('add-to-cart');
+                }
             }
         });
 
@@ -195,7 +281,9 @@
 
             data: function() {
                 return {
-                    quantity: 1
+                    quantity: 1,
+                    deleteLoading: false,
+                    addToCartLoading: false
                 };
             },
 
@@ -211,62 +299,79 @@
             },
 
             mounted: function() {
-                if(this.type == 'cart') {
+                if(this.type === 'cart') {
                     this.quantity = this.product.quantity;
                 }
             },
 
             template:
                 '<div class="freju-list-item" @click="goToUrl(product.url)">' +
-                    '<input class="quantity" v-model="quantity" @change="changeQuantity" @click.stop="" v-if="type == \'cart\'">' +
+                    '<input class="quantity" v-model="quantity" @keyup="changeQuantity" @click.stop="" v-if="type == \'cart\'">' +
                     '<div class="image" :style="\'background-image: url(\' + product.image + \')\'" />' +
                     '<div class="details">' +
                         '<div class="name">%% product.name %%</div>' +
                         '<div class="ean">EAN: %% product.ean %%</div>' +
-                        '<div class="shipping-information">%% product.shippingInfo %%</div>' +
+                        '<div class="shipping-information">Sofort lieferbar</div>' +
                     '</div>' +
                     '<div class="cart-details">' +
                         '<div class="price">%% price %%</div>' +
                         '<div class="add-to-cart-wrapper" v-if="type == \'search\'">' +
                             '<input class="quantity" v-model="quantity" @click.stop="">' +
-                            '<button class="add-to-cart-button" @click.stop="addToCart">In den Warenkorb</button>' +
+                            '<button class="add-to-cart-button" @click.stop="addToCart">' +
+                                '<loader v-if="addToCartLoading" color="#fff" noMargin small></loader>' +
+                                '<div v-else>In den Warenkorb</div>' +
+                            '</button>' +
                         '</div>' +
                     '</div>' +
-                    '<div class="close-button" v-if="type == \'cart\'" @click.stop="removeFromCart">+</div>' +
+                    '<loader v-if="deleteLoading" noMargin small></loader>' +
+                    '<div class="close-button" v-else-if="type == \'cart\'" @click.stop="removeFromCart">+</div>' +
                 '</div>',
 
             methods: {
                 addToCart: function() {
-                    fetch('/staging/checkout/ajaxAddArticleCart?sAdd=' + this.product.ordernumber + '&sQuantity=' + this.quantity)
-                        .then((response) => {
-                            return response.json();
-                        }).then((data) => {
-                            viewModel.data.bundleProducts.push(this.product);
-                        });
+                    var vm = this;
+
+                    this.addToCartLoading = true;
+
+                    $.get({
+                        url: this.getStaging() + 'checkout/ajaxAddArticleCart?sAdd=' + this.product.ordernumber + '&sQuantity=' + this.quantity,
+                        'appendCSRFToken': true,
+                        'dataType': 'jsonp'
+                    }, function(response) {
+                        vm.addToCartLoading = false;
+
+                        vm.$emit('add-to-cart');
+                    });
                 },
 
                 removeFromCart: function() {
-                    console.log(this.product);
+                    var vm = this;
 
-                    fetch('/staging/checkout/ajaxDeleteArticleCart/sDelete/' + this.product.id, {
-                        method: 'POST'
-                    })
-                    .then((response) => {
-                        return response.json();
-                    }).then((data) => {
-                        viewModel.data.bundleProducts = viewModel.data.bundleProducts.filter(function(item) {
-                            return item.id !== this.product.id;
-                        });
+                    this.deleteLoading = true;
+
+                    $.post({
+                        url: this.getStaging() + 'checkout/ajaxDeleteArticleCart/sDelete/' + this.product.cartItemId,
+                        'appendCSRFToken': true,
+                        'dataType': 'jsonp'
+                    }, function(response) {
+                        vm.$emit('remove-product', vm.$event, vm.product.id);
                     });
                 },
 
                 changeQuantity: function() {
-                    fetch('/staging/checkout/changeQuantity/sTargetAction/cart?sArticle=' + this.product.id + '&sQuantity=' + this.quantity)
-                        .then((response) => {
-                            return response.json();
-                        }).then((data) => {
-                            console.log(data);
+                    if(this.quantity) {
+                        $.post({
+                            url: this.getStaging() + 'checkout/changeQuantity/sTargetAction/cart',
+                            data: {
+                                sArticle: this.product.cartItemId,
+                                sQuantity: this.quantity,
+                            },
+                            'appendCSRFToken': true,
+                            'dataType': 'jsonp'
+                        }, function(response) {
+                            // quantity changed
                         });
+                    }
                 },
 
                 goToUrl: function(url) {
@@ -283,8 +388,18 @@
 
             template:
                 '<div class="freju-product-listing">' +
-                    '<list-item v-for="product in products" :key="product.id" :product="product" :type="type"></list-item>' +
-                '</div>'
+                    '<list-item v-for="product in products" :key="product.id" :product="product" :type="type" @remove-product="removeProduct" @add-to-cart="addToCart"></list-item>' +
+                '</div>',
+
+            methods: {
+                removeProduct: function(event, productId) {
+                    this.$emit('remove-product', this.$event, productId);
+                },
+
+                addToCart: function() {
+                    this.$emit('add-to-cart');
+                }
+            }
         });
 
         Vue.component('discount-list', {
@@ -297,47 +412,65 @@
 
             data: {
                 bundleProducts: [],
-                basketProducts: []
+                basketProducts: [],
+                basketLoading: true
             },
 
             mounted() {
-                fetch('/staging/frontend/bundles/configurator')
-                        .then((response) => {
-                            return response.json();
-                        })
-                        .then((data) => {
-                            this.bundleProducts = data;
-
-                            fetch('/staging/frontend/bundles/basket')
-                                    .then((response) => {
-                                        return response.json();
-                                    })
-                                    .then((data) => {
-                                        var vm = this;
-
-                                        this.basketProducts = data.content.filter(function(item) {
-                                            return vm.bundleProducts.some(function(el) {
-                                                return el.id == item.articleID;
-                                            });
-                                        });
-
-                                        this.basketProducts.map(function(item) {
-                                            item.name = item.articlename;
-                                            item.id = item.articleID;
-                                            item.price = parseFloat(item.price);
-                                            item.url = item.linkDetails;
-                                            item.image = item.image.source;
-
-                                            return item;
-                                        });
-
-                                        console.log(this.basketProducts);
-                                    });
-                        });
+                this.getBundleProducts();
             },
 
             methods: {
+                getBundleProducts: function() {
+                    fetch(this.getStaging() + 'frontend/bundles/configurator')
+                            .then((response) => {
+                                return response.json();
+                            })
+                            .then((data) => {
+                                this.bundleProducts = data;
 
+                                this.getBasket();
+                            });
+                },
+
+                getBasket: function() {
+                    this.basketLoading = true;
+
+                    fetch(this.getStaging() + 'frontend/bundles/basket')
+                            .then((response) => {
+                                return response.json();
+                            })
+                            .then((data) => {
+                                var vm = this;
+
+                                if(data.content && data.content[0]) {
+                                    this.basketProducts = data.content.filter(function(item) {
+                                        return vm.bundleProducts.some(function(el) {
+                                            return el.id == item.articleID;
+                                        });
+                                    });
+
+                                    this.basketProducts.map(function(item) {
+                                        item.name = item.articlename;
+                                        item.cartItemId = item.id,
+                                                item.id = item.articleID;
+                                        item.price = parseFloat(item.price);
+                                        item.url = item.linkDetails;
+                                        item.image = item.image.source;
+
+                                        return item;
+                                    });
+                                }
+
+                                this.basketLoading = false;
+                            });
+                },
+
+                removeFromCart: function(event, productId) {
+                    this.basketProducts = this.basketProducts.filter(function(item) {
+                        return item.id !== productId;
+                    });
+                }
             }
         });
     </script>
