@@ -30,7 +30,7 @@
             }
         </style>
 
-        {if $cashbacks}
+        {if $item['additional_details'].attributes.discounts && $cashbacks}
 
             {foreach $details as $item}
 
