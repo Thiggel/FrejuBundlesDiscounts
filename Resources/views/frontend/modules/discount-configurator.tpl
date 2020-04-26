@@ -523,7 +523,7 @@
                                 if(data.content && data.content[0]) {
                                     this.basketProducts = data.content.filter(function(item) {
                                         return vm.bundleProducts.some(function(el) {
-                                            return el.id == item.articleID;
+                                            return el.id === item.articleID;
                                         });
                                     });
 
@@ -531,7 +531,12 @@
                                         item.name = item.articlename;
                                         item.cartItemId = item.id,
                                                 item.id = item.articleID;
-                                        item.oldPrice = parseFloat(item.additional_details.price_numeric);
+
+                                        var bundleProduct = vm.bundleProducts.find(function(el) {
+                                            return el.id === item.id;
+                                        });
+
+                                        item.oldPrice = parseFloat(bundleProduct.price);
                                         item.newPrice = parseFloat(item.priceNumeric);
                                         item.url = item.linkDetails;
                                         item.image = item.image.source;
