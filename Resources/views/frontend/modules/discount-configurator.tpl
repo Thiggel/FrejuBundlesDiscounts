@@ -30,6 +30,10 @@
             font-weight: 400;
             margin: 16px 0;
         }
+        #freju-discount-configurator .strike {
+            text-decoration: line-through;
+            color: rgba(95, 114, 133, 0.7);
+        }
         #freju-discount-configurator button {
             background: #3b5999;
             margin: 12px;
@@ -58,6 +62,30 @@
             padding: 20px;
             border-radius: 5px;
             background: #fbfbfb;
+        }
+        .freju-footer {
+            display: block;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-top: 12px;
+        }
+        .freju-footer button {
+            margin-right: 0 !important;
+        }
+        .freju-footer .total {
+            font-size: 16px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 5px;
+            margin-right: 12px;
+        }
+        .freju-footer .total .number {
+            font-weight: 600;
+        }
+        .freju-footer .total .number.green {
+            color: #66aa66;
         }
         .freju-dropdown {
             display: block;
@@ -164,6 +192,20 @@
             <h3>Bundle-Produkte im Warenkorb</h3>
             <product-listing :products="basketProducts" type="cart" v-if="basketProducts[0]" @remove-product="removeFromCart"></product-listing>
             <div class="empty-state" v-else>Bisher befinden sich keine Produkte mit Konfigurator-Rabatt in Ihrem Warenkorb</div>
+        </div>
+
+        <div class="freju-footer">
+            <span class="total">
+                Gesamte Ersparnis:
+                <span class="number green">%% total.bonus %%</span>
+            </span>
+            <span class="total">
+                Bundle-Preis:
+                <span class="number">%% total.price %%</span>
+            </span>
+            <a href="/checkout/confirm">
+                <button>Zur Kasse</button>
+            </a>
         </div>
     </div>
 
@@ -294,7 +336,17 @@
 
             computed: {
                 price: function() {
-                    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(this.product.price);
+                    var formatter = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
+
+                    if(this.type == 'search') {
+                        var oldPrice = formatter.format(this.product.price),
+                            newPrice = formatter.format(this.product.price * (1 - this.product.bundlebonus / 100));
+                    } else {
+                        var oldPrice = formatter.format(this.product.oldPrice),
+                            newPrice = formatter.format(this.product.newPrice);
+                    }
+
+                    return '<span class="strike">' + oldPrice + '</span> ' + newPrice;
                 }
             },
 
@@ -314,7 +366,7 @@
                         '<div class="shipping-information">Sofort lieferbar</div>' +
                     '</div>' +
                     '<div class="cart-details">' +
-                        '<div class="price">%% price %%</div>' +
+                        '<div class="price" v-html="price"></div>' +
                         '<div class="add-to-cart-wrapper" v-if="type == \'search\'">' +
                             '<input class="quantity" v-model="quantity" @click.stop="">' +
                             '<button class="add-to-cart-button" @click.stop="addToCart">' +
@@ -420,6 +472,24 @@
                 this.getBundleProducts();
             },
 
+            computed: {
+                total: function() {
+                    var formatter = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }),
+                        oldPriceTotal = 0,
+                        newPriceTotal = 0;
+
+                    this.basketProducts.forEach(function(item) {
+                        oldPriceTotal += item.oldPrice * parseInt(item.quantity);
+                        newPriceTotal += item.newPrice * parseInt(item.quantity);
+                    });
+
+                    return {
+                        price: formatter.format(newPriceTotal),
+                        bonus: formatter.format(oldPriceTotal - newPriceTotal)
+                    }
+                }
+            },
+
             methods: {
                 getBundleProducts: function() {
                     fetch(this.getStaging() + 'frontend/bundles/configurator')
@@ -428,6 +498,11 @@
                             })
                             .then((data) => {
                                 this.bundleProducts = data;
+
+                                this.bundleProducts.map(function(item) {
+                                    item.priceNet = item.price;
+                                    item.price = item.price * (1 + item.tax / 100);
+                                });
 
                                 this.getBasket();
                             });
@@ -443,6 +518,8 @@
                             .then((data) => {
                                 var vm = this;
 
+                                console.log(data);
+
                                 if(data.content && data.content[0]) {
                                     this.basketProducts = data.content.filter(function(item) {
                                         return vm.bundleProducts.some(function(el) {
@@ -454,7 +531,8 @@
                                         item.name = item.articlename;
                                         item.cartItemId = item.id,
                                                 item.id = item.articleID;
-                                        item.price = parseFloat(item.price);
+                                        item.oldPrice = parseFloat(item.additional_details.price_numeric);
+                                        item.newPrice = parseFloat(item.priceNumeric);
                                         item.url = item.linkDetails;
                                         item.image = item.image.source;
 

@@ -29,14 +29,16 @@ class Shopware_Controllers_Frontend_Bundles extends Enlight_Controller_Action
                    s_articles_details.ordernumber,
                    s_articles_details.minpurchase,
                    s_articles_details.shippingtime,
-                   s_articles_details.releasedate
+                   s_articles_details.releasedate,
+                   s_core_tax.tax
             FROM s_articles
             JOIN related_product_id ON related_product_id.product_id = s_articles.id
-            JOIN s_articles_prices ON s_articles_prices.articleid = s_articles.id
+            JOIN s_articles_prices ON s_articles_prices.articleID = s_articles.id
             JOIN s_bundle ON related_product_id.bundle_id = s_bundle.id
             JOIN s_articles_details ON s_articles_details.articleid = s_articles.id
             JOIN s_articles_img ON s_articles.id = s_articles_img.articleid
             JOIN s_media ON s_articles_img.media_id = s_media.id
+            JOIN s_core_tax ON s_core_tax.id = s_articles.taxID
             GROUP BY s_articles.id;
         ";
 
