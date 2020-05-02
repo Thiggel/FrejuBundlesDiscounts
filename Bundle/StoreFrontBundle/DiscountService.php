@@ -24,11 +24,13 @@ class DiscountService
 
     private function removeDiscount(string $discount, int $price): float
     {
+        $discount = str_replace(',', '.', $discount);
+
         if(strpos($discount, '€')) {
-            $price += (int)trim(str_replace('€', '', $discount));
+            $price += (float)trim(str_replace('€', '', $discount));
         } else if(strpos($discount, '%')) {
-            $value = (int)trim(str_replace('%', '', $discount));
-            $price /= (100 - $value ) * 100;
+            $value = (float)trim(str_replace('%', '', $discount));
+            $price /= (1 - $value / 100);
         }
 
         return (float)$price;
@@ -37,23 +39,13 @@ class DiscountService
 
     private function addDiscount(string $discount, int $price): float
     {
+        $discount = str_replace(',', '.', $discount);
+
         if(strpos($discount, '€')) {
-            $price -= (int)trim(str_replace('€', '', $discount));
+            $price -= (float)trim(str_replace('€', '', $discount));
         } else if(strpos($discount, '%')) {
-            $value = (int)trim(str_replace('%', '', $discount));
-            $price *= (100 - $value) / 100;
-        }
-
-        return (float)$price;
-    }
-
-
-    private function getAbsoluteValue(string $discount, int $price, bool $precalculated): float
-    {
-        if($precalculated) {
-            $price = $this->removeDiscount($discount, $price) - $price;
-        } else {
-            $price -= $this->addDiscount($discount, $price);
+            $value = (float)trim(str_replace('%', '', $discount));
+            $price *= (1 + $value / 100);
         }
 
         return (float)$price;
@@ -77,23 +69,20 @@ class DiscountService
 
         foreach($query as $discount) {
             if($discount['active']  && empty($products[$discount['product_id']]['discounts'][$discount['discount_id']]) /* TODO: && startDate <= today && endDate >= today */) {
-                if(empty($nOfDiscounts[$discount['discount_id']])) $nOfDiscounts[$discount['discount_id']] = 0;
+                // create tracker for number of discounts for the product to use as a key
+                if(empty($nOfDiscounts[$discount['discount_id']]))
+                    $nOfDiscounts[$discount['discount_id']] = 0;
 
                 // get the nth discount (discounts are put into a string and separated with semicolon)
                 $discountValue = explode(";", $discount['discounts'])[$nOfDiscounts[$discount['discount_id']]];
 
-                $products[$discount['product_id']]['price'] = $discount['price'] * (1 + $discount['tax'] / 100);
+                // get unit (% or €) and type (precalc, postcalc, cashback) to sort the discounts
+                $unit = strpos($discountValue, '%') ? 'percent' : 'euro';
+                $type = $discount['discount_precalculated'] ? 'precalculated' : ( $discount['cashback'] ? 'cashback' : 'postcalculated' );
 
-                $products[$discount['product_id']]['discounts'][$discount['discount_id']] = [
+                $products[$discount['product_id']]['discounts'][$discount['discount_id']][$type][$unit] = [
                     'value' => $discountValue,
-                    'cashback' => $discount['cashback'],
-                    'discount_precalculated' => $discount['discount_precalculated'],
-                    'name' => $discount['name'],
-                    'absoluteValue' => $this->getAbsoluteValue(
-                        $discountValue,
-                        $discount['price'] * (1 + $discount['tax'] / 100),
-                        $discount['discount_precalculated']
-                    )
+                    'name' => $discount['name']
                 ];
 
                 // increment number of discounts
