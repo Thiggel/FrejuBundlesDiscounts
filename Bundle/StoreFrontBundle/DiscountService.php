@@ -154,15 +154,18 @@ class DiscountService
                 {
                     foreach($product['discounts'][$type][$unit] as &$discount)
                     {
-                        $oldPrice = $price[$type];
-                        $price[$type] = $this->calculateDiscount(
-                            $typeOrder['action'],
-                            $unit,
-                            $discount['value'],
-                            $price[$type]
-                        );
+                        if(isset($discount['value']))
+                        {
+                            $oldPrice = $price[$type];
+                            $price[$type] = $this->calculateDiscount(
+                                $typeOrder['action'],
+                                $unit,
+                                $discount['value'],
+                                $price[$type]
+                            );
 
-                        $discount['absoluteValue'] = abs($oldPrice - $price[$type]);
+                            $discount['absoluteValue'] = abs($oldPrice - $price[$type]);
+                        }
                     }
                 }
 
