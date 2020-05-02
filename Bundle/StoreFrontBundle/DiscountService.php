@@ -51,6 +51,25 @@ class DiscountService
         return (float)$price;
     }
 
+    private function calculateDiscount(string $action, $type, string $discount, float $price): float
+    {
+        // remove €/%-sign and replace comma by point
+        $discount = floatval(
+            str_replace([$type, ','], ['', '.'],
+                str_replace('.', '', $discount)
+            )
+        );
+
+        if($type == '€')
+            return $price - $discount;
+
+        if($action == 'applyDiscount')
+            return $price * (1 - $discount / 100);
+
+        // case 'deApplyDiscount'
+        return $price / (1 - $discount / 100);
+    }
+
     public function getDiscounts(): array
     {
         $sql = "
@@ -67,8 +86,15 @@ class DiscountService
         $products = [];
         $nOfDiscounts = [];
 
-        foreach($query as $discount) {
-            if($discount['active']  && empty($products[$discount['product_id']]['discounts'][$discount['discount_id']]) /* TODO: && startDate <= today && endDate >= today */) {
+        foreach($query as $discount)
+        {
+            if(
+                $discount['active']  &&
+                empty($products[$discount['product_id']]['discounts'][$discount['discount_id']])
+                /* TODO: && startDate <= today && endDate >= today */
+            )
+            {
+
                 // create tracker for number of discounts for the product to use as a key
                 if(empty($nOfDiscounts[$discount['discount_id']]))
                     $nOfDiscounts[$discount['discount_id']] = 0;
@@ -76,51 +102,99 @@ class DiscountService
                 // get the nth discount (discounts are put into a string and separated with semicolon)
                 $discountValue = explode(";", $discount['discounts'])[$nOfDiscounts[$discount['discount_id']]];
 
+                // save the price to do calculations with later
+                $products[$discount['product_id']]['price'] = $discount['price'] * (1 + $discount['tax'] / 100);
+
                 // get unit (% or €) and type (precalc, postcalc, cashback) to sort the discounts
-                $unit = strpos($discountValue, '%') ? 'percent' : 'euro';
+                $unit = strpos($discountValue, '%') ? '%' : '€';
                 $type = $discount['discount_precalculated'] ? 'precalculated' : ( $discount['cashback'] ? 'cashback' : 'postcalculated' );
 
-                $products[$discount['product_id']]['discounts'][$discount['discount_id']][$type][$unit] = [
+                $products[$discount['product_id']]['discounts'][$type][$unit][] = [
                     'value' => $discountValue,
                     'name' => $discount['name']
                 ];
 
                 // increment number of discounts
                 $nOfDiscounts[$discount['discount_id']]++;
+
             }
         }
 
         $freeAddArticles = $this->freeAddArticlesService->getFreeProducts();
 
         foreach($products as $key => &$product) {
-            $payablePrice = $product['price'];
-            $prePrice = $product['price'];
-            $postPrice = $product['price'];
-            $systemPrice = $product['price'];
+            $price = [
+                'precalculated' => $product['price'],
+                'postcalculated' => $product['price'],
+                'cashback' => $product['price']
+            ];
 
-            foreach($product['discounts'] as $discount) {
-                if($discount['discount_precalculated']) {
-                    $prePrice = $this->removeDiscount($discount['value'], $prePrice);
-                } else if($discount['cashback']) {
-                    $postPrice = $this->addDiscount($discount['value'], $postPrice);
-                } else {
-                    $payablePrice = $this->addDiscount($discount['value'], $payablePrice);
-                    $postPrice = $this->addDiscount($discount['value'], $postPrice);
+            // the order in which the discounts will be applied
+            $order = [
+                'precalculated' => [
+                    // the order of units is different for precalculated since they're backtracked, so it's the other way round
+                    'order' => ['%', '€'],
+                    'action' => 'deApplyDiscount'
+                ],
+                'postcalculated' => [
+                    'order' => ['€', '%'],
+                    'action' => 'applyDiscount'
+                ],
+                'cashback' => [
+                    'order' => ['€', '%'],
+                    'action' => 'applyDiscount'
+                ]
+            ];
+
+
+            foreach($order as $type => $typeOrder)
+            {
+                // apply or de-apply discount in order of units
+                foreach($typeOrder['order'] as $unit)
+                {
+                    foreach($product['discounts'][$type][$unit] as &$discount)
+                    {
+                        $oldPrice = $price[$type];
+                        $price[$type] = $this->calculateDiscount(
+                            $typeOrder['action'],
+                            $unit,
+                            $discount['value'],
+                            $price[$type]
+                        );
+
+                        $discount['absoluteValue'] = abs($oldPrice - $price[$type]);
+                    }
                 }
+
+                // if this discount changes the actual price (not precalculated)
+                if($type == 'postcalculated')
+                    // then change the price onto which cashbacks are applied as well
+                    $price['cashback'] = $price[$type];
             }
 
-            if($freeAddArticles[$key]) {
-                foreach($freeAddArticles[$key] as $article) {
-                    $prePrice += $article['price'];
-                }
 
+            // add free articles
+            if($freeAddArticles[$key]) {
+                // add price
+                foreach($freeAddArticles[$key] as $article)
+                    $price['precalculated'] += $article['price'];
+
+                // add action product to object
                 $product['freeAddArticles'] = $freeAddArticles[$key];
             }
 
-            $product['prePrice'] = $prePrice;
-            $product['payablePrice'] = $payablePrice;
-            $product['postPrice'] = $postPrice;
-            $product['systemPrice'] = $systemPrice;
+            // 1. price that includes everything - precalculated discounts and free articles
+            $product['prePrice'] = $price['precalculated'];
+
+            // 2. price as it is in the system (without any discounts)
+            $product['systemPrice'] = $product['price'];
+
+            // 3. price with postcalculated discounts applied as well
+            $product['payablePrice'] = $price['postcalculated'];
+
+            // 4. price with cashbacks applied (the final price that the customer will have paid in the end)
+            $product['postPrice'] = $price['cashback'];
+
         }
 
         return $products;

@@ -35,22 +35,35 @@
             }
 
         </style>
-		
+
         <div class="freju--discounts">
             <div class="freju--discounts__discount">
                 <div class="freju--discounts__discount_cell">Unser regulärer Preis</div>
                 <div class="freju--discounts__discount_cell">{$discounts['prePrice']|currency}</div>
                 {if !$short}
                     {foreach $discounts['freeAddArticles'] as $article}
-                        <div class="freju--discounts__discount_cell freeAddArticle">Inklusive Gratis <a href="{$article['url']}">{$article['name']}</a></div>
-                        <div class="freju--discounts__discount_cell freeAddArticle">{$article['price']|currency}</div>
+                        <div class="freju--discounts__discount_cell freeAddArticle">Ersparnis durch gratis <a href="{$article['url']}">{$article['name']}</a></div>
+                        <div class="freju--discounts__discount_cell freeAddArticle">- {$article['price']|currency}</div>
                     {/foreach}
 
-                    {foreach $discounts['discounts'] as $discount}
-                        {if !$discount['cashback']}
-                            <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
-                            <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']|currency}</div>
-                        {/if}
+                    {foreach $discounts['discounts']['precalculated']['€'] as $discount}
+                        <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
+                        <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']|currency}</div>
+                    {/foreach}
+
+                    {foreach $discounts['discounts']['precalculated']['%'] as $discount}
+                        <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
+                        <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']|currency}</div>
+                    {/foreach}
+
+                    {foreach $discounts['discounts']['postcalculated']['€'] as $discount}
+                        <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
+                        <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']|currency}</div>
+                    {/foreach}
+
+                    {foreach $discounts['discounts']['postcalculated']['%'] as $discount}
+                        <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
+                        <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']|currency}</div>
                     {/foreach}
                 {/if}
 
@@ -58,11 +71,14 @@
                 <div class="freju--discounts__discount_cell">{$discounts['payablePrice']|currency}</div>
 
                 {if !$short}
-                    {foreach $discounts['discounts'] as $discount}
-                        {if $discount['cashback']}
-                            <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
-                            <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']|currency}</div>
-                        {/if}
+                    {foreach $discounts['discounts']['cashback']['€'] as $discount}
+                        <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
+                        <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']|currency}</div>
+                    {/foreach}
+
+                    {foreach $discounts['discounts']['cashback']['%'] as $discount}
+                        <div class="freju--discounts__discount_cell discount">{$discount['name']}</a></div>
+                        <div class="freju--discounts__discount_cell discount">- {$discount['absoluteValue']|currency}</div>
                     {/foreach}
                 {/if}
 
