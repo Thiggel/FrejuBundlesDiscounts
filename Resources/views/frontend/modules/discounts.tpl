@@ -82,8 +82,10 @@
                     {/foreach}
                 {/if}
 
-                <div class="freju--discounts__discount_cell">Preis nach allen Aktionen</div>
-                <div class="freju--discounts__discount_cell">{$discounts['postPrice']|currency}</div>
+                {if $discounts['postPrice'] !== $discounts['payablePrice']}
+                    <div class="freju--discounts__discount_cell">Preis nach allen Aktionen</div>
+                    <div class="freju--discounts__discount_cell">{$discounts['postPrice']|currency}</div>
+                {/if}
             </div>
         </div>
 
