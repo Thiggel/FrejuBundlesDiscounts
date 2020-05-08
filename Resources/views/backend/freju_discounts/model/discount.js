@@ -12,21 +12,12 @@ Ext.define('Shopware.apps.FrejuDiscounts.model.Discount', {
     fields: [
         { name : 'id', type: 'int', useNull: true },
         { name : 'active', type: 'boolean' },
-        { name : 'cashback', type: 'boolean' },
-        { name : 'discount_precalculated', type: 'boolean' },
-        { name : 'startDate', type: 'date' },
-        { name : 'endDate', type: 'date' },
+        { name : 'startDate', type: 'string' },
+        { name : 'endDate', type: 'string' },
         { name : 'name', type: 'string' },
-        { name : 'discounts', type: 'string' }
+        { name : 'description', type: 'string' },
+        { name : 'badge', type: 'string' },
+        { name : 'color', type: 'string' }
     ],
-
-    associations: [{
-        relation: 'ManyToMany',
-
-        type: 'hasMany',
-        model: 'Shopware.apps.FrejuDiscounts.model.Article',
-        name: 'getArticles',
-        associationKey: 'relatedDiscountedItems'
-    }]
 });
 

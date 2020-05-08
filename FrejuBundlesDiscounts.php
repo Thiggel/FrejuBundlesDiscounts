@@ -64,7 +64,7 @@ class FrejuBundlesDiscounts extends Plugin
         $classes = $this->getClasses($modelManager);
 
         $sql = "
-            DROP TABLE discounted_item_id, related_product_id, discount_related_product_id, s_discount, s_discounted_item, s_bundle
+            DROP TABLE related_product_id, s_discount, s_discounted_item, s_bundle
         ";
 
         Shopware()->Db()->exec($sql);

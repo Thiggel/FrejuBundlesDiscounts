@@ -29,27 +29,6 @@ class Discount extends ModelEntity
     private $name;
 
     /**
-     * @var ArrayCollection
-     *
-     * @ORM\ManyToMany(targetEntity="FrejuBundlesDiscounts\Models\DiscountedItem")
-     * @ORM\JoinTable(name="discounted_item_id",
-     *      joinColumns={
-     *          @ORM\JoinColumn(
-     *              name="discount_id",
-     *              referencedColumnName="id"
-     *          )
-     *      },
-     *      inverseJoinColumns={
-     *          @ORM\JoinColumn(
-     *              name="discounted_item_id",
-     *              referencedColumnName="id"
-     *          )
-     *      }
-     * )
-     */
-    protected $relatedDiscountedItems;
-
-    /**
      * @var integer $active
      *
      * @ORM\Column(type="boolean")
@@ -57,60 +36,44 @@ class Discount extends ModelEntity
     private $active = false;
 
     /**
-     * @var integer $discount_precalculated
+     * @var string $startDate
      *
-     * @ORM\Column(type="boolean")
-     */
-    private $discount_precalculated = false;
-
-    /**
-     * @var integer $cashback
-     *
-     * @ORM\Column(type="boolean")
-     */
-    private $cashback = false;
-
-    /**
-     * @var \DateTime $startDate
-     *
-     * @ORM\Column(type="date", nullable=true)
+     * @ORM\Column(type="string")
      */
     private $startDate = null;
 
     /**
-     * @var \DateTime $endDate
+     * @var string $endDate
      *
-     * @ORM\Column(type="date", nullable=true)
+     * @ORM\Column(type="string")
      */
     private $endDate = null;
 
     /**
-     * @var string $discounts
+     * @var string $description
+     *
      * @ORM\Column(type="string")
      */
-    private $discounts;
+    private $description;
+
+    /**
+     * @var string $badge
+     *
+     * @ORM\Column(type="string")
+     */
+    private $badge;
+
+    /**
+     * @var string $color
+     *
+     * @ORM\Column(type="string")
+     */
+    private $color;
 
 
     public function __construct()
     {
         $this->relatedDiscountedItems = new ArrayCollection();
-    }
-
-    /**
-     * @param $discounts
-     * @return $this
-     */
-    public function setDiscounts($discounts) {
-        $this->discounts = $discounts;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDiscounts() {
-        return $this->discounts;
     }
 
     /**
@@ -142,6 +105,57 @@ class Discount extends ModelEntity
     /**
      * @return string
      */
+    public function getDescription() {
+        return $this->description;
+    }
+
+    /**
+     * @param $description
+     * @return Discount
+     */
+    public function setDescription($description) {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBadge() {
+        return $this->badge;
+    }
+
+    /**
+     * @param $badge
+     * @return Discount
+     */
+    public function setBadge($badge) {
+        $this->badge = $badge;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getColor() {
+        return $this->color;
+    }
+
+    /**
+     * @param $color
+     * @return Discount
+     */
+    public function setColor($color) {
+        $this->color = $color;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getName() {
         return $this->name;
     }
@@ -163,44 +177,6 @@ class Discount extends ModelEntity
     public function getActive()
     {
         return $this->active;
-    }
-
-    /**
-     * @param int $discount_precalculated
-     * @return Discount
-     */
-    public function setDiscountPrecalculated($discount_precalculated)
-    {
-        $this->discount_precalculated = $discount_precalculated;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getDiscountPrecalculated()
-    {
-        return $this->discount_precalculated;
-    }
-
-    /**
-     * @param int $cashback
-     * @return Discount
-     */
-    public function setCashback($cashback)
-    {
-        $this->cashback = $cashback;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getCashback()
-    {
-        return $this->cashback;
     }
 
     /**

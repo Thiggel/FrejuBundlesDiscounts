@@ -70,17 +70,26 @@ class DiscountService
         return $price / (1 - $discount / 100);
     }
 
+    private function parseDate(string $date): int
+    {
+        $parts = explode(".", $date);
+        $parsed = new \DateTime();
+        $parsed->setDate($parts[2], $parts[1], $parts[0]);
+
+        return $parsed->getTimestamp();
+    }
+
     public function getDiscounts(): array
     {
         $sql = "
-            SELECT discount_id, product_id, p.price, d.name, d.discounts, d.discount_precalculated, d.cashback, d.active, d.startDate, d.endDate, t.tax
-            FROM discount_related_product_id r
-            INNER JOIN s_discount d ON d.id = r.discount_id
-            INNER JOIN s_articles_prices p ON p.articleID = product_id
-            INNER JOIN s_articles a ON a.id = product_id
+            SELECT i.id, i.main_product_id, i.discount, i.discountType, i.precalculated, i.cashback, d.active, d.startDate, d.endDate, d.badge, d.color, t.tax, p.price
+            FROM s_discounted_item i
+            INNER JOIN s_discount d ON d.name = i.campaign
+            INNER JOIN s_articles_prices p ON p.articleID = i.main_product_id
+            INNER JOIN s_articles a ON a.id = i.main_product_id
             INNER JOIN s_core_tax t ON t.id = a.taxID
         ";
-
+        
         $query = $this->connection->query($sql)->fetchAll();
 
         $products = [];
@@ -90,32 +99,30 @@ class DiscountService
         {
             if(
                 $discount['active']  &&
-                empty($products[$discount['product_id']]['discounts'][$discount['discount_id']])
-                /* TODO: && startDate <= today && endDate >= today */
+                empty($products[$discount['main_product_id']]['discounts'][$discount['id']])
+                && $this->parseDate($discount['startDate']) <= time()
+                && $this->parseDate($discount['endDate']) >= time()
             )
             {
 
                 // create tracker for number of discounts for the product to use as a key
-                if(empty($nOfDiscounts[$discount['discount_id']]))
-                    $nOfDiscounts[$discount['discount_id']] = 0;
-
-                // get the nth discount (discounts are put into a string and separated with semicolon)
-                $discountValue = explode(";", $discount['discounts'])[$nOfDiscounts[$discount['discount_id']]];
+                if(empty($nOfDiscounts[$discount['id']]))
+                    $nOfDiscounts[$discount['id']] = 0;
 
                 // save the price to do calculations with later
-                $products[$discount['product_id']]['price'] = $discount['price'] * (1 + $discount['tax'] / 100);
+                $products[$discount['main_product_id']]['price'] = $discount['price'] * (1 + $discount['tax'] / 100);
 
-                // get unit (% or €) and type (precalc, postcalc, cashback) to sort the discounts
-                $unit = strpos($discountValue, '%') ? '%' : '€';
-                $type = $discount['discount_precalculated'] ? 'precalculated' : ( $discount['cashback'] ? 'cashback' : 'postcalculated' );
+                // get type (precalc, postcalc, cashback) to sort the discounts
+                $type = $discount['precalculated'] ? 'precalculated' : ( $discount['cashback'] ? 'cashback' : 'postcalculated' );
 
-                $products[$discount['product_id']]['discounts'][$type][$unit][] = [
-                    'value' => $discountValue,
-                    'name' => $discount['name']
+                $products[$discount['main_product_id']]['discounts'][$type][$discount['discountType']][] = [
+                    'value' => $discount['discount'],
+                    'name' => $discount['badge'],
+                    'color' => $discount['color']
                 ];
 
                 // increment number of discounts
-                $nOfDiscounts[$discount['discount_id']]++;
+                $nOfDiscounts[$discount['id']]++;
 
             }
         }

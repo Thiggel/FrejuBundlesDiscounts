@@ -58,7 +58,7 @@ class DiscountedItem extends ModelEntity
      *
      * @ORM\Column(type="boolean")
      */
-    private $discount_precalculated = false;
+    private $precalculated = false;
 
     /**
      * @var integer $cashback
@@ -68,12 +68,36 @@ class DiscountedItem extends ModelEntity
     private $cashback = false;
 
     /**
-     * @param int $discount_precalculated
+     * @var string $campaign
+     *
+     * @ORM\Column(type="string")
+     */
+    private $campaign;
+
+    /**
+     * @return string
+     */
+    public function getCampaign() {
+        return $this->campaign;
+    }
+
+    /**
+     * @param $campaign
      * @return Discount
      */
-    public function setDiscountPrecalculated($discount_precalculated)
+    public function setCampaign($campaign) {
+        $this->campaign = $campaign;
+
+        return $this;
+    }
+
+    /**
+     * @param int $precalculated
+     * @return DiscountedItem
+     */
+    public function setPrecalculated($precalculated)
     {
-        $this->discount_precalculated = $discount_precalculated;
+        $this->precalculated = $precalculated;
 
         return $this;
     }
@@ -81,15 +105,15 @@ class DiscountedItem extends ModelEntity
     /**
      * @return int
      */
-    public function getDiscountPrecalculated()
+    public function getPrecalculated()
     {
-        return $this->discount_precalculated;
+        return $this->precalculated;
     }
 
 
     /**
      * @param int $cashback
-     * @return Discount
+     * @return DiscountedItem
      */
     public function setCashback($cashback)
     {
@@ -127,7 +151,7 @@ class DiscountedItem extends ModelEntity
      * @return int
      */
     public function getProduct() {
-        return $this->mainProduct;
+        return $this->product;
     }
 
     /**

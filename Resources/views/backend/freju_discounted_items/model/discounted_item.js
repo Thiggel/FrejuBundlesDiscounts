@@ -11,9 +11,10 @@ Ext.define('Shopware.apps.FrejuDiscountedItems.model.DiscountedItem', {
 
     fields: [
         { name : 'id', type: 'int', useNull: true },
+        { name : 'campaign', type: 'string' },
         { name : 'productId', type: 'int' },
+        { name : 'precalculated', type: 'boolean' },
         { name : 'cashback', type: 'boolean' },
-        { name : 'discount_precalculated', type: 'boolean' },
         { name : 'discount', type: 'string' },
         { name : 'discountType', type: 'string' }
     ],
