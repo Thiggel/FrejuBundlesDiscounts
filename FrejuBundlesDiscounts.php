@@ -10,6 +10,7 @@ use Shopware\Components\Plugin\Context\UninstallContext;
 use Shopware\Components\Model\ModelManager;
 use FrejuBundlesDiscounts\Models\Bundle;
 use FrejuBundlesDiscounts\Models\Discount;
+use FrejuBundlesDiscounts\Models\DiscountedItem;
 
 class FrejuBundlesDiscounts extends Plugin
 {
@@ -62,6 +63,12 @@ class FrejuBundlesDiscounts extends Plugin
 
         $classes = $this->getClasses($modelManager);
 
+        $sql = "
+            DROP TABLE discounted_item_id, related_product_id, discount_related_product_id, s_discount, s_discounted_item, s_bundle
+        ";
+
+        Shopware()->Db()->exec($sql);
+
         //$tool->dropSchema($classes);
     }
 
@@ -73,7 +80,8 @@ class FrejuBundlesDiscounts extends Plugin
     {
         return [
             $modelManager->getClassMetadata(Bundle::class),
-            $modelManager->getClassMetadata(Discount::class)
+            $modelManager->getClassMetadata(Discount::class),
+            $modelManager->getClassMetadata(DiscountedItem::class)
         ];
     }
 }

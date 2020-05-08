@@ -31,8 +31,8 @@ class Discount extends ModelEntity
     /**
      * @var ArrayCollection
      *
-     * @ORM\ManyToMany(targetEntity="Shopware\Models\Article\Article")
-     * @ORM\JoinTable(name="discount_related_product_id",
+     * @ORM\ManyToMany(targetEntity="FrejuBundlesDiscounts\Models\DiscountedItem")
+     * @ORM\JoinTable(name="discounted_item_id",
      *      joinColumns={
      *          @ORM\JoinColumn(
      *              name="discount_id",
@@ -41,7 +41,7 @@ class Discount extends ModelEntity
      *      },
      *      inverseJoinColumns={
      *          @ORM\JoinColumn(
-     *              name="product_id",
+     *              name="discounted_item_id",
      *              referencedColumnName="id"
      *          )
      *      }
