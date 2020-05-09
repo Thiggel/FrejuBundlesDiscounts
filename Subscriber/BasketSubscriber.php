@@ -5,6 +5,7 @@ namespace FrejuBundlesDiscounts\Subscriber;
 use FrejuBundlesDiscounts\Bundle\StoreFrontBundle\ConfiguratorBundleDiscountApplierService;
 use FrejuBundlesDiscounts\Bundle\StoreFrontBundle\DiscountService;
 use Enlight\Event\SubscriberInterface;
+use FrejuBundlesDiscounts\Bundle\StoreFrontBundle\ProductBundleCreatorService;
 
 class BasketSubscriber implements SubscriberInterface
 {
@@ -14,10 +15,15 @@ class BasketSubscriber implements SubscriberInterface
     /** @var DiscountService */
     private $discountService;
 
-    public function __construct(ConfiguratorBundleDiscountApplierService $configuratorBundleDiscountApplierService, DiscountService $discountService)
+    /** @var ProductBundleCreatorService */
+    private $productBundleCreatorService;
+
+
+    public function __construct(ConfiguratorBundleDiscountApplierService $configuratorBundleDiscountApplierService, DiscountService $discountService, ProductBundleCreatorService $productBundleCreatorService)
     {
         $this->configuratorBundleDiscountApplierService = $configuratorBundleDiscountApplierService;
         $this->discountService = $discountService;
+        $this->productBundleCreatorService = $productBundleCreatorService;
     }
 
     public static function getSubscribedEvents(): array
@@ -32,7 +38,8 @@ class BasketSubscriber implements SubscriberInterface
         $article = $eventArguments->getReturn();
         $articleWithDiscount = $this->discountService->applyDiscountToProduct($article);
         $articleWithBundleDiscount = $this->configuratorBundleDiscountApplierService->applyDiscountToProduct($articleWithDiscount);
+        $articleWithSparBundleDiscount = $this->productBundleCreatorService->applyDiscountToProduct($articleWithBundleDiscount);
 
-        return $articleWithBundleDiscount;
+        return $articleWithSparBundleDiscount;
     }
 }

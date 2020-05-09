@@ -4,6 +4,7 @@ namespace FrejuBundlesDiscounts\Bundle\StoreFrontBundle;
 
 use FrejuBundlesDiscounts\Bundle\StoreFrontBundle\DiscountService;
 use FrejuBundlesDiscounts\Bundle\StoreFrontBundle\FreeAddArticlesService;
+use FrejuBundlesDiscounts\Bundle\StoreFrontBundle\ProductBundleCreatorService;
 use Shopware\Bundle\StoreFrontBundle\Service\ListProductServiceInterface;
 use Shopware\Bundle\StoreFrontBundle\Struct;
 
@@ -19,17 +20,22 @@ class ListProductService implements ListProductServiceInterface
     /** @var DiscountService */
     private $discountService;
 
-    public function __construct(ListProductServiceInterface $service, FreeAddArticlesService $freeAddArticlesService, DiscountService $discountService)
+    /** @var ProductBundleCreatorService */
+    private $bundleCreatorService;
+
+    public function __construct(ListProductServiceInterface $service, FreeAddArticlesService $freeAddArticlesService, DiscountService $discountService, ProductBundleCreatorService $bundleCreatorService)
     {
         $this->originalService = $service;
         $this->freeAddArticlesService = $freeAddArticlesService;
         $this->discountService = $discountService;
+        $this->bundleCreatorService = $bundleCreatorService;
     }
 
     private function addDiscounts($product)
     {
         $freeAddArticles = $this->freeAddArticlesService->getList();
         $discounts = $this->discountService->getDiscounts();
+        $bundles = $this->bundleCreatorService->getBundles();
 
         if(isset($freeAddArticles[$product->getId()])) {
             $attribute = new Struct\Attribute(['freeAddArticles' => $freeAddArticles[$product->getId()]]);
@@ -39,6 +45,11 @@ class ListProductService implements ListProductServiceInterface
         if(isset($discounts[$product->getId()])) {
             $attribute = new Struct\Attribute(['discounts' => $discounts[$product->getId()]]);
             $product->addAttribute('discounts', $attribute);
+        }
+
+        if(isset($bundles[$product->getId()])) {
+            $attribute = new Struct\Attribute(['bundles' => $bundles[$product->getId()]]);
+            $product->addAttribute('bundles', $attribute);
         }
 
         return $product;

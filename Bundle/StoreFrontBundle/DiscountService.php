@@ -89,11 +89,10 @@ class DiscountService
             INNER JOIN s_articles a ON a.id = i.main_product_id
             INNER JOIN s_core_tax t ON t.id = a.taxID
         ";
-        
+
         $query = $this->connection->query($sql)->fetchAll();
 
         $products = [];
-        $nOfDiscounts = [];
 
         foreach($query as $discount)
         {
@@ -104,10 +103,6 @@ class DiscountService
                 && $this->parseDate($discount['endDate']) >= time()
             )
             {
-
-                // create tracker for number of discounts for the product to use as a key
-                if(empty($nOfDiscounts[$discount['id']]))
-                    $nOfDiscounts[$discount['id']] = 0;
 
                 // save the price to do calculations with later
                 $products[$discount['main_product_id']]['price'] = $discount['price'] * (1 + $discount['tax'] / 100);
@@ -120,9 +115,6 @@ class DiscountService
                     'name' => $discount['badge'],
                     'color' => $discount['color']
                 ];
-
-                // increment number of discounts
-                $nOfDiscounts[$discount['id']]++;
 
             }
         }

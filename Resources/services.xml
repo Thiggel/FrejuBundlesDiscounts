@@ -14,6 +14,10 @@
             <argument type="service" id="freju_bundles_discounts.free_add_articles_service"/>
         </service>
 
+        <service id="freju_bundles_discounts.product_bundle.creator" class="FrejuBundlesDiscounts\Bundle\StoreFrontBundle\ProductBundleCreatorService">
+            <argument type="service" id="dbal_connection"/>
+        </service>
+
         <service id="freju_bundles_discounts.list_product_service"
                  class="FrejuBundlesDiscounts\Bundle\StoreFrontBundle\ListProductService"
                  decorates="shopware_storefront.list_product_service"
@@ -22,6 +26,7 @@
             <argument type="service" id="freju_bundles_discounts.list_product_service.inner"/>
             <argument type="service" id="freju_bundles_discounts.free_add_articles_service"/>
             <argument type="service" id="freju_bundles_discounts.discount_service"/>
+            <argument type="service" id="freju_bundles_discounts.product_bundle.creator"/>
         </service>
 
         <service id="freju_bundles_discounts.subscriber.templates" class="FrejuBundlesDiscounts\Subscriber\TemplateRegistration">
@@ -33,20 +38,12 @@
         <service id="freju_bundles_discounts.subscriber.basket" class="FrejuBundlesDiscounts\Subscriber\BasketSubscriber">
             <argument type="service" id="freju_bundles_discounts.discount_applier.configurator_bundle"/>
             <argument type="service" id="freju_bundles_discounts.discount_service"/>
+            <argument type="service" id="freju_bundles_discounts.product_bundle.creator"/>
             <tag name="shopware.event_subscriber"/>
         </service>
 
         <service id="freju_bundles_discounts.discount_applier.configurator_bundle" class="FrejuBundlesDiscounts\Bundle\StoreFrontBundle\ConfiguratorBundleDiscountApplierService">
             <argument type="service" id="models"/>
-        </service>
-
-        <service id="freju_bundles_discounts.product_bundle.creator" class="FrejuBundlesDiscounts\Bundle\StoreFrontBundle\ProductBundleCreatorService">
-            <argument type="service" id="dbal_connection"/>
-        </service>
-
-        <service id="freju_bundles_discounts.subscriber.bundle" class="FrejuBundlesDiscounts\Subscriber\BundleSubscriber">
-            <argument type="service" id="freju_bundles_discounts.product_bundle.creator"/>
-            <tag name="shopware.event_subscriber"/>
         </service>
     </services>
 </container>

@@ -61,6 +61,7 @@ class FreeAddArticlesService
             INNER JOIN s_articles_img ON s_articles_img.articleID = product_id
             INNER JOIN s_articles ON s_articles.id = product_id
             INNER JOIN s_articles_prices p ON p.articleID = product_id
+            WHERE s_bundle.bundleType = 'Gratisartikel-Bundle'
         ";
 
         $query = $this->connection->query($sql)->fetchAll();
