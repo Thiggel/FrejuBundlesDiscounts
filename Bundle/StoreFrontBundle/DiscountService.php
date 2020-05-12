@@ -110,7 +110,7 @@ class DiscountService
                 // get type (precalc, postcalc, cashback) to sort the discounts
                 $type = $discount['precalculated'] ? 'precalculated' : ( $discount['cashback'] ? 'cashback' : 'postcalculated' );
 
-                $products[$discount['main_product_id']]['discounts'][$type][$discount['discountType']][] = [
+                $products[$discount['main_product_id']]['discounts'][$type][$discount['discountType']][$discount['id']] = [
                     'value' => $discount['discount'],
                     'name' => $discount['badge'],
                     'color' => $discount['color']
