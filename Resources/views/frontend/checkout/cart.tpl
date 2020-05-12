@@ -34,6 +34,6 @@
             {/block}
         </div>
 
-        {include file="frontend/modules/cart-discounts.tpl" details=$sBasket.content cashbacks="true"}
+        {include file="frontend/modules/cart-discounts.tpl" items=$sBasket.content}
     </div>
 {/block}

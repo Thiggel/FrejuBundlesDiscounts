@@ -1,79 +1,102 @@
 {block name="frontend_freju_cart_discounts"}
-    {if isset($details) && is_array($details)}
+    <style>
+        .freju--checkout__discount {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px;
+            margin: 12px 0;
+            border: 2px solid #39589a;
+            color: #39589a;
+            font-size: 16px;
+            font-weight: 600;
+            background: rgba(57,88,154,0.3);
+            border-radius: 5px;
+        }
+        .freju--checkout__discount_value, .freju--checkout__discount_name {
+            width: 50%;
+        }
+        .freju--checkout__discount_value {
+            text-align: right;
+        }
+        .freju--checkout__discount_description {
+            width: 100%;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+    </style>
 
-        <style>
-            .freju--checkout__discount {
-                width: 100%;
-                display: flex;
-                flex-wrap: wrap;
-                align-items: center;
-                justify-content: space-between;
-                padding: 24px;
-                margin: 12px 0;
-                border: 2px solid #39589a;
-                color: #39589a;
-                font-size: 16px;
-                font-weight: 600;
-                background: rgba(57,88,154,0.3);
-                border-radius: 5px;
-            }
-            .freju--checkout__discount_value, .freju--checkout__discount_name {
-                width: 50%;
-            }
-            .freju--checkout__discount_value {
-                text-align: right;
-            }
-            .freju--checkout__discount_description {
-                width: 100%;
-                margin-top: 12px;
-                font-weight: 500;
-            }
-        </style>
-
-        {if $item['additional_details'].attributes.discounts && $cashbacks}
-
-            {foreach $details as $item}
-
-                {$productDetails = $item['additional_details'].attributes.discounts->get('discounts')}
+    {if isset($items) && is_array($items)}
+        {foreach $items as $item}
+            {if $item['additional_details'].attributes.discounts}
+                {$productDiscounts = $item['additional_details'].attributes.discounts->get('discounts')}
                 {$quantity = $item['quantity']}
-                {$discounts = $productDetails['discounts']}
 
-                {foreach $discounts as $discount}
-                    {if $discount['cashback']}
+                {foreach $productDiscounts['discounts']['cashback']['€'] as $discount}
+                    <div class="freju--checkout__discount" style="background: {$discount['color']}; border-color: {$discount['darkerColor']}; color: {$discount['darkerColor']};">
+                        <div class="freju--checkout__discount_name">Cashback: {$discount['name']}</div>
+                        {$discountValue = $discount['absoluteValue'] * $quantity}
+                        <div class="freju--checkout__discount_value">(- {$discountValue|currency})</div>
 
-                        <div class="freju--checkout__discount">
-                            <div class="freju--checkout__discount_name">Cashback: {$discount['name']}</div>
-                            {$discountValue = $discount['absoluteValue'] * $quantity}
-                            <div class="freju--checkout__discount_value">(- {$discountValue|currency})</div>
-
-                            <div class="freju--checkout__discount_description">Den Cashback-Betrag erhalten Sie nach Kauf und Registierung des Produkts bei {$item['additional_details']['supplierName']}</div>
-                        </div>
-
-                    {/if}
+                        <div class="freju--checkout__discount_description">Den Cashback-Betrag erhalten Sie nach Kauf und Registierung des Produkts bei {$item['additional_details']['supplierName']}</div>
+                    </div>
                 {/foreach}
-            {/foreach}
+                {foreach $productDiscounts['discounts']['cashback']['%'] as $discount}
+                    <div class="freju--checkout__discount" style="background: {$discount['color']}; border-color: {$discount['darkerColor']}; color: {$discount['darkerColor']};">
+                        <div class="freju--checkout__discount_name">Cashback: {$discount['name']}</div>
+                        {$discountValue = $discount['absoluteValue'] * $quantity}
+                        <div class="freju--checkout__discount_value">(- {$discountValue|currency})</div>
 
-        {else}
+                        <div class="freju--checkout__discount_description">Den Cashback-Betrag erhalten Sie nach Kauf und Registierung des Produkts bei {$item['additional_details']['supplierName']}</div>
+                    </div>
+                {/foreach}
+            {/if}
+        {/foreach}
+    {/if}
 
-            {$discounts = $details['discounts']}
+    {if isset($discounts) && is_array($discounts)}
+        {foreach $discounts['discounts']['precalculated']['€'] as $discount}
 
-            {foreach $discounts as $discount}
+            <div class="freju--checkout__discount" style="background: {$discount['color']}; border-color: {$discount['darkerColor']}; color: {$discount['darkerColor']};">
+                <div class="freju--checkout__discount_name">{$discount['name']}</div>
 
-                    {if !$discount['discount_precalculated'] && !$discount['cashback']}
+                {$discountValue = $discount['absoluteValue'] * $quantity}
+                <div class="freju--checkout__discount_value">- {$discountValue|currency}</div>
+            </div>
 
-                        <div class="freju--checkout__discount">
-                            <div class="freju--checkout__discount_name">{$discount['name']}</div>
+        {/foreach}
+        {foreach $discounts['discounts']['precalculated']['%'] as $discount}
 
-                            {$discountValue = $discount['absoluteValue'] * $quantity}
-                            <div class="freju--checkout__discount_value">- {$discountValue|currency}</div>
-                        </div>
+            <div class="freju--checkout__discount" style="background: {$discount['color']}; border-color: {$discount['darkerColor']}; color: {$discount['darkerColor']};">
+                <div class="freju--checkout__discount_name">{$discount['name']}</div>
 
-                    {/if}
+                {$discountValue = $discount['absoluteValue'] * $quantity}
+                <div class="freju--checkout__discount_value">- {$discountValue|currency}</div>
+            </div>
 
-            {/foreach}
+        {/foreach}
+        {foreach $discounts['discounts']['postcalculated']['€'] as $discount}
 
-        {/if}
+            <div class="freju--checkout__discount" style="background: {$discount['color']}; border-color: {$discount['darkerColor']}; color: {$discount['darkerColor']};">
+                <div class="freju--checkout__discount_name">{$discount['name']}</div>
 
+                {$discountValue = $discount['absoluteValue'] * $quantity}
+                <div class="freju--checkout__discount_value">- {$discountValue|currency}</div>
+            </div>
+
+        {/foreach}
+        {foreach $discounts['discounts']['postcalculated']['%'] as $discount}
+
+            <div class="freju--checkout__discount" style="background: {$discount['color']}; border-color: {$discount['darkerColor']}; color: {$discount['darkerColor']};">
+                <div class="freju--checkout__discount_name">{$discount['name']}</div>
+
+                {$discountValue = $discount['absoluteValue'] * $quantity}
+                <div class="freju--checkout__discount_value">- {$discountValue|currency}</div>
+            </div>
+
+        {/foreach}
     {/if}
 
 {/block}

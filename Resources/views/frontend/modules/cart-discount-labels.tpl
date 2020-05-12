@@ -19,8 +19,23 @@
 
         {$discounts = $details['discounts']}
         <div class="freju--checkout__discount-labels">
-            {foreach $discounts as $discount}
-                <div class="freju--checkout__discount-labels_label">{$discount['name']}</div>
+            {foreach $discounts['precalculated']['€'] as $discount}
+                <div class="freju--checkout__discount-labels_label" style="background: {$discount['color']}; color: {$discount['darkerColor']};">{$discount['name']}</div>
+            {/foreach}
+            {foreach $discounts['precalculated']['%'] as $discount}
+                <div class="freju--checkout__discount-labels_label" style="background: {$discount['color']}; color: {$discount['darkerColor']};">{$discount['name']}</div>
+            {/foreach}
+            {foreach $discounts['postcalculated']['€'] as $discount}
+                <div class="freju--checkout__discount-labels_label" style="background: {$discount['color']}; color: {$discount['darkerColor']};">{$discount['name']}</div>
+            {/foreach}
+            {foreach $discounts['postcalculated']['%'] as $discount}
+                <div class="freju--checkout__discount-labels_label" style="background: {$discount['color']}; color: {$discount['darkerColor']};">{$discount['name']}</div>
+            {/foreach}
+            {foreach $discounts['cashback']['€'] as $discount}
+                <div class="freju--checkout__discount-labels_label" style="background: {$discount['color']}; color: {$discount['darkerColor']};">{$discount['name']}</div>
+            {/foreach}
+            {foreach $discounts['cashback']['%'] as $discount}
+                <div class="freju--checkout__discount-labels_label" style="background: {$discount['color']}; color: {$discount['darkerColor']};">{$discount['name']}</div>
             {/foreach}
         </div>
 
