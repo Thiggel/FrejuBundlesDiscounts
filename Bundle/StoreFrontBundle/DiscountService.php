@@ -110,6 +110,8 @@ class DiscountService
 
     public function getDiscounts(): array
     {
+        $customerGroup = Shopware()->Shop()->getCustomerGroup()->getKey();
+
         $sql = "
             SELECT i.id, i.main_product_id, i.discount, i.discountType, i.precalculated, i.cashback, d.active, d.startDate, d.endDate, d.badge, d.color, t.tax, p.price
             FROM s_discounted_item i
@@ -117,6 +119,7 @@ class DiscountService
             INNER JOIN s_articles_prices p ON p.articleID = i.main_product_id
             INNER JOIN s_articles a ON a.id = i.main_product_id
             INNER JOIN s_core_tax t ON t.id = a.taxID
+            WHERE p.pricegroup = '$customerGroup'
         ";
 
         $query = $this->connection->query($sql)->fetchAll();

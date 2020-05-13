@@ -54,6 +54,8 @@ class FreeAddArticlesService
 
     public function getFreeProducts(): array
     {
+        $customerGroup = Shopware()->Shop()->getCustomerGroup()->getKey();
+
         $sql = "
             SELECT s_bundle.main_product_id, p.price, product_id, s_articles_img.media_id AS image_id, s_articles.name
             FROM related_product_id
@@ -61,7 +63,8 @@ class FreeAddArticlesService
             INNER JOIN s_articles_img ON s_articles_img.articleID = product_id
             INNER JOIN s_articles ON s_articles.id = product_id
             INNER JOIN s_articles_prices p ON p.articleID = product_id
-            WHERE s_bundle.bundleType = 'Gratisartikel-Bundle'
+                WHERE p.pricegroup = '$customerGroup'
+                AND s_bundle.bundleType = 'Gratisartikel-Bundle'
         ";
 
         $query = $this->connection->query($sql)->fetchAll();

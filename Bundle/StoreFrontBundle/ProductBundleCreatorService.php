@@ -80,6 +80,8 @@ class ProductBundleCreatorService
 
     public function getBundles(): array
     {
+        $customerGroup = Shopware()->Shop()->getCustomerGroup()->getKey();
+
         $sql = "
             SELECT b.id, r.product_id, b.main_product_id, b.bundleBonus, a.name, a2.name AS mainProductName, t.tax, t2.tax AS mainProductTax, p.price, p2.price AS mainProductPrice, d.ordernumber, d2.ordernumber AS mainOrderNumber
             FROM related_product_id r
@@ -87,12 +89,15 @@ class ProductBundleCreatorService
             INNER JOIN s_articles a ON a.id = r.product_id
             INNER JOIN s_articles a2 ON a2.id = b.main_product_id
             INNER JOIN s_articles_prices p ON p.articleID = r.product_id
+
             INNER JOIN s_articles_prices p2 ON p2.articleID = b.main_product_id
             INNER JOIN s_core_tax t ON t.id = a.taxID
             INNER JOIN s_core_tax t2 ON t2.id = a2.taxID
             INNER JOIN s_articles_details d ON d.articleid = a.id
             INNER JOIN s_articles_details d2 ON d2.articleid = a2.id
-            WHERE b.bundleType = 'Spar-Bundle'
+                WHERE b.bundleType = 'Spar-Bundle'
+                AND p.pricegroup = '$customerGroup'
+                AND p2.pricegroup = '$customerGroup'
         ";
 
         try {

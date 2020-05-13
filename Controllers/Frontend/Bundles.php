@@ -17,6 +17,8 @@ class Shopware_Controllers_Frontend_Bundles extends Enlight_Controller_Action
 
     public function configuratorAction()
     {
+        $customerGroup = Shopware()->Shop()->getCustomerGroup()->getKey();
+
         $sql = "
             SELECT s_articles.id,
                    s_media.path AS image,
@@ -39,6 +41,7 @@ class Shopware_Controllers_Frontend_Bundles extends Enlight_Controller_Action
             JOIN s_articles_img ON s_articles.id = s_articles_img.articleid
             JOIN s_media ON s_articles_img.media_id = s_media.id
             JOIN s_core_tax ON s_core_tax.id = s_articles.taxID
+                WHERE s_articles_prices.pricegroup = '$customerGroup'
             GROUP BY s_articles.id;
         ";
 

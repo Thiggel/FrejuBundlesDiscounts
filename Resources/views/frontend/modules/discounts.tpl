@@ -1,4 +1,5 @@
 {block name="frontend_freju_discounts"}
+
     {if isset($discounts) && is_array($discounts)}
         <style>
             .freju--discounts {
