@@ -10,6 +10,12 @@
                 display: flex;
                 flex-wrap: wrap;
             }
+            .bundle-wrapper div:nth-child(2n) .freju--bundles__bundle_cell.bundle {
+                background: #ebebeb;
+            }
+            .bundle-wrapper div:not(:last-child) .freju--bundles__bundle_cell.bundle {
+                border-bottom: 1px solid #c9c9c9;
+            }
             .freju--bundles__bundle_cell {
                 width: 50%;
                 font-size: 14px;
@@ -68,21 +74,48 @@
                 display: block;
                 margin-bottom: 8px;
             }
+            .freju--bundles__bundle .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+            }
+            .freju--bundles__bundle .header .icon:after {
+                content: "↓";
+                font-size: 16px;
+                transition: all 0.25s ease;
+            }
+            .freju--bundles__bundle .header .icon.open:after {
+                transform: rotate(180deg);
+            }
+            .slide-enter-active, .slide-leave-active {
+                transition: all .35s ease;
+            }
+            .slide-enter, .slide-leave-to {
+                opacity: 0;
+                transform: scale(0.8);
+            }
         </style>
 
         <div class="freju--bundles">
             <div class="freju--bundles__bundle" id="freju--bundles">
-                <div class="freju--bundles__bundle_cell header">Wählen Sie eine Sparkit-Variante:</div>
-
-                {foreach $bundles as $bundle}
-                    <bundle
-                            name='{$bundle['name']}'
-                            ordernumbers='{$bundle['ordernumbers']}'
-                            :price="parseFloat({$bundle['totalPrice']})"
-                            :bonus="parseFloat({$bundle['totalBonus']})"
-                    >
-                    </bundle>
-                {/foreach}
+                <div class="freju--bundles__bundle_cell header" @click="bundleTabOpen = !bundleTabOpen">
+                    <div>Wählen Sie eine Sparkit-Variante</div>
+                    <div class="icon" :class="iconClass"></div>
+                </div>
+                <transition name="slide">
+                    <div class="bundle-wrapper" v-if="bundleTabOpen">
+                        {foreach $bundles as $bundle}
+                            <bundle
+                                    name='{$bundle['name']}'
+                                    ordernumbers='{$bundle['ordernumbers']}'
+                                    :price="parseFloat({$bundle['totalPrice']})"
+                                    :bonus="parseFloat({$bundle['totalBonus']})"
+                            >
+                            </bundle>
+                        {/foreach}
+                    </div>
+                </transition>
 
             </div>
 
@@ -198,7 +231,20 @@
 
                 var viewModel = new Vue({
                     el: '#freju--bundles',
-                    delimiters: ['%%', '%%']
+                    delimiters: ['%%', '%%'],
+
+                    data: {
+                        bundleTabOpen: false
+                    },
+
+                    computed: {
+                        iconClass: function() {
+                            return {
+                                open: this.bundleTabOpen,
+                                closed: !this.bundleTabOpen
+                            }
+                        }
+                    }
                 });
             </script>
         </div>

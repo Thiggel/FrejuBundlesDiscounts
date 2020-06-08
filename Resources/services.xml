@@ -39,6 +39,7 @@
             <argument type="service" id="freju_bundles_discounts.discount_applier.configurator_bundle"/>
             <argument type="service" id="freju_bundles_discounts.discount_service"/>
             <argument type="service" id="freju_bundles_discounts.product_bundle.creator"/>
+            <argument type="service" id="freju_bundles_discounts.free_add_articles_service"/>
             <tag name="shopware.event_subscriber"/>
         </service>
 

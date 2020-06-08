@@ -2,7 +2,7 @@
     <style>
         .freju--article__free-add-articles {
             position: absolute;
-            z-index: 999999;
+            z-index: 1000;
             top: 0;
             left: 0;
             display: flex;

@@ -4,6 +4,7 @@ namespace FrejuBundlesDiscounts\Bundle\StoreFrontBundle;
 
 use Doctrine\ORM\EntityRepository;
 use FrejuBundlesDiscounts\Models\Bundle;
+use phpDocumentor\Reflection\Types\Boolean;
 use Shopware\Components\Model\ModelManager;
 use Shopware\Models\Article\Article;
 
@@ -17,7 +18,7 @@ class ConfiguratorBundleDiscountApplierService
         $this->bundleRepository = $modelManager->getRepository(Bundle::class);
     }
 
-    public function applyDiscountToProduct(array $article): array
+    public function getBundles(array $article): array
     {
         /** @var Bundle[] $bundles */
         $allBundles = $this->bundleRepository->findBy(
@@ -44,9 +45,23 @@ class ConfiguratorBundleDiscountApplierService
             }
         );
 
+        return $bundlesWithArticleInCart;
+    }
+
+    public function isBundled(array $article): bool
+    {
+        $bundlesWithArticleInCart = $this->getBundles($article);
+
+        return is_array($bundlesWithArticleInCart) && count($bundlesWithArticleInCart) !== 0;
+    }
+
+    public function applyDiscountToProduct(array $article): array
+    {
+        $bundlesWithArticleInCart = $this->getBundles($article);
+
         foreach ($bundlesWithArticleInCart as $bundle) {
-            $article['price'] = $article['price'] * (1 - $bundle->getBundleBonus() / 100);
-            $article['netprice'] = $article['price'] / (1 + $article['tax_rate'] / 100);
+            $article['netprice'] = $article['netprice'] * (1 - $bundle->getBundleBonus() / 100);
+            $article['price'] = $article['netprice'] * (1 + $article['tax_rate'] / 100);
         }
 
         return $article;

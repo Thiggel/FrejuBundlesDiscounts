@@ -37,7 +37,7 @@ class FreeAddArticlesService
     private function getUrl(int $id): string
     {
         // Context
-        $shop = Shopware()->Models()->getRepository(\Shopware\Models\Shop\Shop::class)->getById(1);
+        $shop = Shopware()->Models()->getRepository(\Shopware\Models\Shop\Shop::class)->getById(Shopware()->Shop()->getId());
         $shopContext = Context::createFromShop($shop, Shopware()->Container()->get('config'));
 
 
@@ -57,12 +57,13 @@ class FreeAddArticlesService
         $customerGroup = Shopware()->Shop()->getCustomerGroup()->getKey();
 
         $sql = "
-            SELECT s_bundle.main_product_id, p.price, product_id, s_articles_img.media_id AS image_id, s_articles.name
+            SELECT s_bundle.main_product_id, p.price, product_id, s_articles_img.media_id AS image_id, s_articles.name, d.ordernumber
             FROM related_product_id
             INNER JOIN s_bundle ON s_bundle.id = related_product_id.bundle_id
             INNER JOIN s_articles_img ON s_articles_img.articleID = product_id
             INNER JOIN s_articles ON s_articles.id = product_id
             INNER JOIN s_articles_prices p ON p.articleID = product_id
+            INNER JOIN s_articles_details d ON d.articleid = product_id
                 WHERE p.pricegroup = '$customerGroup'
                 AND s_bundle.bundleType = 'Gratisartikel-Bundle'
         ";
@@ -77,16 +78,69 @@ class FreeAddArticlesService
             $name = $relations['name'];
             $url = $this->getUrl($id);
             $price = $relations['price'] * 1.19;
+            $ordernumber = $relations['ordernumber'];
 
             $products[$relations['main_product_id']][$id] = [
                 'id' => $id,
                 'name' => $name,
                 'img' => $img,
                 'url' => $url,
-                'price' => $price
+                'price' => $price,
+                'ordernumber' => $ordernumber
             ];
         }
 
         return $products;
+    }
+
+    public function discountFreeArticle(array $article, &$isFree): array
+    {
+        $basketProductIds = Shopware()->Modules()->Basket()->sGetBasketIds();
+
+        foreach($this->getFreeProducts() as $key => $mainProduct)
+        {
+            if(in_array($key, $basketProductIds))
+            {
+                $sessionId = Shopware()->Session()->get( "sessionId" );
+                $sql = "
+                    SELECT quantity
+                    FROM s_order_basket
+                    WHERE sessionID = '$sessionId'
+                    AND articleID = '$key'
+                ";
+
+                $query = Shopware()->Db()->query($sql)->fetchAll();
+
+                if(!empty($query))
+                {
+                    foreach($mainProduct as $freeProduct)
+                    {
+                        if($freeProduct['id'] == $article['articleID'])
+                        {
+                            $oldPrice = $article['price'];
+                            $cartQuant = $article['quantity'];
+                            $discountedQuant = $query[0]['quantity'];
+                            $newPrice = $oldPrice - ($discountedQuant * $oldPrice / $cartQuant);
+
+                            $article['price'] = $newPrice;
+                            $article['netprice'] = $newPrice / (1 + $article['tax_rate'] / 100);
+
+                            $isFree = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $article;
+    }
+
+    public function applyFreeArticlePrice(array $article): array
+    {
+        $article['price'] = 0;
+        $article['netprice'] = 0;
+
+        return $article;
     }
 }

@@ -19,7 +19,7 @@ class ProductBundleCreatorService
     private function getUrl(int $id): string
     {
         // Context
-        $shop = Shopware()->Models()->getRepository(\Shopware\Models\Shop\Shop::class)->getById(1);
+        $shop = Shopware()->Models()->getRepository(\Shopware\Models\Shop\Shop::class)->getById(Shopware()->Shop()->getId());
         $shopContext = Context::createFromShop($shop, Shopware()->Container()->get('config'));
 
 
@@ -138,7 +138,7 @@ class ProductBundleCreatorService
         return $products;
     }
 
-    public function applyDiscountToProduct(array $article): array
+    public function applyDiscountToProduct(array $article, bool &$isBundled): array
     {
         $bundles = $this->getBundles();
         $basketProductIds = Shopware()->Modules()->Basket()->sGetBasketIds();
@@ -157,9 +157,11 @@ class ProductBundleCreatorService
                 }
 
                 if($bundleInBasket) {
+                    $isBundled = true;
+
                     // apply discounts to product of product bundle
-                    $article['price'] = $article['price'] * (1 - $bundle['bundleBonus'] / 100);
-                    $article['netprice'] = $article['price'] / (1 + $article['tax_rate'] / 100);
+                    $article['netprice'] = $article['netprice'] * (1 - $bundle['bundleBonus'] / 100);
+                    $article['price'] = $article['netprice'] * (1 + $article['tax_rate'] / 100);
                 }
             }
         }
