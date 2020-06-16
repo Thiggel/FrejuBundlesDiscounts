@@ -143,7 +143,12 @@
                     </div>
                 {/block}
 
-                {if $sBasketItem['additional_details'].attributes.discounts}
+                {if $sBasketItem['additional_details'].attributes.bundleInBasket}
+                    {$bundle = $sBasketItem['additional_details'].attributes.bundle->get('bundle')}
+                    {$originalPrice = floatval(str_replace(',', '.', str_replace('.', '', $sBasketItem.price))) + $bundle['absoluteBonus']}
+
+                    {$originalPrice|currency}{block name='frontend_checkout_cart_tax_symbol'}{s name="Star" namespace="frontend/listing/box_article"}{/s}{/block}
+                {elseif $sBasketItem['additional_details'].attributes.discounts}
                     {$discounts = $sBasketItem['additional_details'].attributes.discounts->get('discounts')}
                     {$systemPrice = $discounts['systemPrice']}
                     {$systemPrice|currency}{block name='frontend_checkout_cart_tax_symbol'}{s name="Star" namespace="frontend/listing/box_article"}{/s}{/block}
@@ -152,6 +157,26 @@
                 {/if}
 
             {/if}
+        </div>
+    {/block}
+
+    {* Accumulated product price *}
+    {block name='frontend_checkout_cart_item_total_sum'}
+        <div class="panel--td column--total-price is--align-right">
+            {block name='frontend_checkout_cart_item_total_price_label'}
+                <div class="column--label total-price--label">
+                    {s name="CartColumnTotal" namespace="frontend/checkout/cart_header"}{/s}
+                </div>
+            {/block}
+            {if $sBasketItem['additional_details'].attributes.bundleInBasket}
+                {$bundle = $sBasketItem['additional_details'].attributes.bundle->get('bundle')}
+                {$originalPrice = $sBasketItem.quantity * (floatval(str_replace(',', '.', str_replace('.', '', $sBasketItem.price))) + $bundle['absoluteBonus'])}
+
+                {$originalPrice|currency}{block name='frontend_checkout_cart_tax_symbol'}{s name="Star" namespace="frontend/listing/box_article"}{/s}{/block}
+            {else}
+                {$sBasketItem.amount}{block name='frontend_checkout_cart_tax_symbol'}{s name="Star" namespace="frontend/listing/box_article"}{/s}{/block}
+            {/if}
+
         </div>
     {/block}
 

@@ -39,17 +39,18 @@ class ProductBundleCreatorService
         return '<a href="' . $this->getUrl($id) . '">' . $name . '</a>';
     }
 
-    private function getProductData(array $array, int $id, string $ordernumber, string $name, float $price, float $tax, float $bonus): array
+    private function getProductData(array $array, int $id, string $ordernumber, string $name, float $price, float $tax, float $purchaseprice, float $bonus): array
     {
         $productPrice = $price * (1 + $tax / 100);
 
         $array['products'][$id] = [
             'name' => $name,
             'price' => $productPrice,
+            'purchaseprice' => $purchaseprice,
             'ordernumber' => $ordernumber,
             'url' => $this->getUrl($id),
             'bonus' => $bonus,
-            'absoluteBonus' => $productPrice * $bonus / 100
+            'absoluteBonus' => $purchaseprice * $bonus / 100
         ];
 
         $totalPrice = 0;
@@ -83,7 +84,7 @@ class ProductBundleCreatorService
         $customerGroup = Shopware()->Shop()->getCustomerGroup()->getKey();
 
         $sql = "
-            SELECT b.id, r.product_id, b.main_product_id, b.bundleBonus, a.name, a2.name AS mainProductName, t.tax, t2.tax AS mainProductTax, p.price, p2.price AS mainProductPrice, d.ordernumber, d2.ordernumber AS mainOrderNumber
+            SELECT b.id, r.product_id, b.main_product_id, b.bundleBonus, a.name, a2.name AS mainProductName, t.tax, t2.tax AS mainProductTax, p.price, p2.price AS mainProductPrice, d.ordernumber, d2.ordernumber AS mainOrderNumber, d.purchaseprice, d2.purchaseprice AS mainPurchaseprice
             FROM related_product_id r
             INNER JOIN s_bundle b ON b.id = r.bundle_id
             INNER JOIN s_articles a ON a.id = r.product_id
@@ -117,6 +118,7 @@ class ProductBundleCreatorService
                 $bundlePart['mainProductName'],
                 $bundlePart['mainProductPrice'],
                 $bundlePart['mainProductTax'],
+                $bundlePart['mainPurchaseprice'],
                 $bundlePart['bundleBonus']
             );
 
@@ -127,6 +129,7 @@ class ProductBundleCreatorService
                 $bundlePart['name'],
                 $bundlePart['price'],
                 $bundlePart['tax'],
+                $bundlePart['purchaseprice'],
                 $bundlePart['bundleBonus']
             );
 
@@ -136,6 +139,31 @@ class ProductBundleCreatorService
         }
 
         return $products;
+    }
+
+    public function bundleInBasket(int $articleId): bool
+    {
+        $bundles = $this->getBundles();
+        $basketProductIds = Shopware()->Modules()->Basket()->sGetBasketIds();
+        $bundleInBasket = true;
+
+        if(isset($bundles[$articleId])) {
+            foreach($bundles[$articleId] as $bundle)
+            {
+                // get all ids of the products that belong to the bundle
+                foreach($bundle['products'] as $id => $product)
+                {
+                    if(!in_array($id, $basketProductIds)) {
+                        $bundleInBasket = false;
+                        break;
+                    }
+                }
+
+                if($bundleInBasket) break;
+            }
+        }
+
+        return $bundleInBasket;
     }
 
     public function applyDiscountToProduct(array $article, bool &$isBundled): array
@@ -160,8 +188,8 @@ class ProductBundleCreatorService
                     $isBundled = true;
 
                     // apply discounts to product of product bundle
-                    $article['netprice'] = $article['netprice'] * (1 - $bundle['bundleBonus'] / 100);
-                    $article['price'] = $article['netprice'] * (1 + $article['tax_rate'] / 100);
+                    $article['price'] = $article['price'] - $bundle['products'][$article['articleID']]['absoluteBonus'];
+                    $article['netprice'] = $article['price'] / (1 + $article['tax_rate'] / 100);
                 }
             }
         }

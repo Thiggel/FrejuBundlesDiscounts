@@ -54,6 +54,7 @@
                 {/foreach}
             {/if}
         {/foreach}
+
     {/if}
 
     {if isset($discounts) && is_array($discounts)}

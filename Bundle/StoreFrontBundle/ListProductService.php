@@ -50,6 +50,14 @@ class ListProductService implements ListProductServiceInterface
         if(isset($bundles[$product->getId()])) {
             $attribute = new Struct\Attribute(['bundles' => $bundles[$product->getId()]]);
             $product->addAttribute('bundles', $attribute);
+
+            $attribute = new Struct\Attribute(['bundle' => array_pop(array_reverse($bundles[$product->getId()]))['products'][$product->getId()]]);
+            $product->addAttribute('bundle', $attribute);
+
+            if($this->bundleCreatorService->bundleInBasket($product->getId())) {
+                $attribute = new Struct\Attribute(['bundleInBasket' => 'true']);
+                $product->addAttribute('bundleInBasket', $attribute);
+            }
         }
 
         return $product;
