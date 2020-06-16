@@ -106,7 +106,6 @@
                 <transition name="slide">
                     <div class="bundle-wrapper" v-if="bundleTabOpen">
                         {foreach $bundles as $bundle}
-                            <pre>{$bundle|print_r}</pre>
                             <bundle
                                     name='{$bundle['name']}'
                                     ordernumbers='{$bundle['ordernumbers']}'
