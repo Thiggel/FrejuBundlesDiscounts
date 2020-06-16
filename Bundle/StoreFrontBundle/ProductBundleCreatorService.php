@@ -50,7 +50,7 @@ class ProductBundleCreatorService
             'ordernumber' => $ordernumber,
             'url' => $this->getUrl($id),
             'bonus' => $bonus,
-            'absoluteBonus' => $purchaseprice * $bonus / 100
+            'absoluteBonus' => ($productPrice - $purchaseprice) * $bonus / 100
         ];
 
         $totalPrice = 0;
