@@ -84,7 +84,17 @@ class ProductBundleCreatorService
         $customerGroup = Shopware()->Shop()->getCustomerGroup()->getKey();
 
         $sql = "
-            SELECT b.id, r.product_id, b.main_product_id, b.bundleBonus, a.name, a2.name AS mainProductName, t.tax, t2.tax AS mainProductTax, p.price, p2.price AS mainProductPrice, d.ordernumber, d2.ordernumber AS mainOrderNumber, d.purchaseprice, d2.purchaseprice AS mainPurchaseprice
+            SELECT
+                b.id,
+                r.product_id,
+                b.main_product_id,
+                b.bundleBonus,
+                a.name, a2.name AS mainProductName,
+                t.tax, t2.tax AS mainProductTax,
+                p.price, p2.price AS mainProductPrice,
+                d.ordernumber, d2.ordernumber AS mainOrderNumber,
+                d.purchaseprice, d2.purchaseprice AS mainPurchaseprice
+
             FROM related_product_id r
             INNER JOIN s_bundle b ON b.id = r.bundle_id
             INNER JOIN s_articles a ON a.id = r.product_id

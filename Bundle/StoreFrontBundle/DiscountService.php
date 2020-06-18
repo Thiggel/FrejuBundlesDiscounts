@@ -61,7 +61,13 @@ class DiscountService
         );
 
         if($type == '€')
-            return $price - $discount;
+        {
+            if($action == 'applyDiscount')
+                return $price - $discount;
+
+            // case 'deApplyDiscount'
+            return $price + $discount;
+        }
 
         if($action == 'applyDiscount')
             return $price * (1 - $discount / 100);

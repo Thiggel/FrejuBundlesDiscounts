@@ -44,6 +44,7 @@
             font-size: 16px;
             transition: all 0.25s ease;
             outline: none;
+            min-width: 180px;
         }
         #freju-discount-configurator button:hover {
             opacity: 0.85;
