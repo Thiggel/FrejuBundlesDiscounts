@@ -364,19 +364,7 @@
                     '<div class="details">' +
                         '<div class="name">%% product.name %%</div>' +
                         '<div class="ean">EAN: %% product.ean %%</div>' +
-                        '<div class="shipping-information">{if $sArticle.sReleasedate && $sArticle.sReleasedate|date_format:"%Y%m%d" > $smarty.now|date_format:"%Y%m%d"}Bald verfügbar - Jetzt unverbindlich reservieren
-
-{elseif $sArticle.instock >= $sArticle.minpurchase && $sArticle.hide_buy != 1} {if date('N') < 6 && date('H') < 13}
-		Versand noch heute / Reservierbar zur Abholung
-		{else}
-                    Sofort versandfertig - Lieferung vsl. {if date('N')==4}{"+3 days"|date_format:"%d.%m.%Y"}{/if}{if date('N')<4}{"+2 days"|date_format:"%d.%m.%Y"}{/if}{if date('N')==6}{"+4 days"|date_format:"%d.%m.%Y"}{/if}{if date('N')==7}{"+3 days"|date_format:"%d.%m.%Y"}{/if} / Reservierbar zur Abholung
-					{/if}
-					 {elseif $sArticle.instock <= 0 && $sArticle.hide_buy != 1 && $sArticle.lfb_rfz}
-					 
-					Artikel im Außenlager / Lieferung oder Abholung in 3-5 Werktagen
-					
-					{else}Bestellartikel - wird exklusiv für Sie bestellt.{/if}
-						</div>' +
+                        '<div class="shipping-information">Lieferbar</div>' +
                     '</div>' +
                     '<div class="cart-details">' +
                         '<div class="price" v-html="price"></div>' +
