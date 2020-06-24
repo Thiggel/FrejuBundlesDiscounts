@@ -59,9 +59,20 @@ class ConfiguratorBundleDiscountApplierService
     {
         $bundlesWithArticleInCart = $this->getBundles($article);
 
+        $ordernumber = $article['ordernumber'];
+        $sql = "
+            SELECT purchaseprice FROM s_articles_details
+            WHERE ordernumber = '$ordernumber'
+        ";
+        $purchasePrice = Shopware()->Db()->query($sql)->fetchAll()[0]['purchaseprice'];
+
         foreach ($bundlesWithArticleInCart as $bundle) {
-            $article['netprice'] = $article['netprice'] * (1 - $bundle->getBundleBonus() / 100);
-            $article['price'] = $article['netprice'] * (1 + $article['tax_rate'] / 100);
+            $article['price'] =
+                $article['price'] -
+                round(($article['price'] - ($purchasePrice * (1 + $article['tax_rate'] / 100)))
+                * ($bundle->getBundleBonus() / 100), 2);
+
+            $article['netprice'] = $article['price'] / (1 + $article['tax_rate'] / 100);
         }
 
         return $article;

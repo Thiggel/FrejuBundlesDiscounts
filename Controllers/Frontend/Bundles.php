@@ -32,6 +32,7 @@ class Shopware_Controllers_Frontend_Bundles extends Enlight_Controller_Action
                    s_articles_details.minpurchase,
                    s_articles_details.shippingtime,
                    s_articles_details.releasedate,
+                   s_articles_details.purchaseprice,
                    s_core_tax.tax
             FROM s_articles
             JOIN s_bundle ON s_bundle.main_product_id = s_articles.id
@@ -70,6 +71,17 @@ class Shopware_Controllers_Frontend_Bundles extends Enlight_Controller_Action
     public function basketAction()
     {
         $basket = Shopware()->Modules()->Basket()->sGetBasket();
+
+        /** @var Router $routerService */
+        $routerService = Shopware()->Container()->get('router');
+
+        foreach($basket['content'] as &$product) {
+            $product['url'] = $routerService->assemble([
+                'module' => 'frontend',
+                'controller' => 'detail',
+                'sArticle' => $product['articleID']
+            ]);
+        }
 
         $this->Front()->Plugins()->ViewRenderer()->setNoRender();
         $this->Response()->setHeader('Content-type', 'application/json', true);

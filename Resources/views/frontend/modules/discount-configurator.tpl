@@ -340,8 +340,14 @@
                     var formatter = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
 
                     if(this.type == 'search') {
+
                         var oldPrice = formatter.format(this.product.price),
-                            newPrice = formatter.format(this.product.price * (1 - this.product.bundlebonus / 100));
+                            newPrice = formatter.format(
+                                    (this.product.price -
+                                    (this.product.price - (this.product.purchaseprice * (1 + this.product.tax / 100)))
+                                    * (this.product.bundlebonus / 100))
+                            );
+
                     } else {
                         var oldPrice = formatter.format(this.product.oldPrice),
                             newPrice = formatter.format(this.product.newPrice);
@@ -539,7 +545,6 @@
 
                                         item.oldPrice = parseFloat(bundleProduct.price);
                                         item.newPrice = parseFloat(item.priceNumeric);
-                                        item.url = item.linkDetails;
                                         item.image = item.image.source;
 
                                         return item;
