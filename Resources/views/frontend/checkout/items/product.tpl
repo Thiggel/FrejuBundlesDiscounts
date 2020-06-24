@@ -135,7 +135,6 @@
     {* Product unit price *}
     {block name='frontend_checkout_cart_item_price'}
         <div class="panel--td column--unit-price is--align-right">
-
             {if !$sBasketItem.modus}
                 {block name='frontend_checkout_cart_item_unit_price_label'}
                     <div class="column--label unit-price--label">
@@ -143,19 +142,14 @@
                     </div>
                 {/block}
 
-                {if $sBasketItem['additional_details'].attributes.bundleInBasket}
-                    {$bundle = $sBasketItem['additional_details'].attributes.bundle->get('bundle')}
-                    {$originalPrice = floatval(str_replace(',', '.', str_replace('.', '', $sBasketItem.price))) + $bundle['absoluteBonus']}
+            {/if}
+            {if $sBasketItem['additional_details'].attributes.bundleInBasket}
+                {$bundle = $sBasketItem['additional_details'].attributes.bundle->get('bundle')}
+                {$originalPrice = floatval(str_replace(',', '.', str_replace('.', '', $sBasketItem.price))) + $bundle['absoluteBonus']}
 
-                    {$originalPrice|currency}{block name='frontend_checkout_cart_tax_symbol'}{s name="Star" namespace="frontend/listing/box_article"}{/s}{/block}
-                {elseif $sBasketItem['additional_details'].attributes.discounts}
-                    {$discounts = $sBasketItem['additional_details'].attributes.discounts->get('discounts')}
-                    {$systemPrice = $discounts['systemPrice']}
-                    {$systemPrice|currency}{block name='frontend_checkout_cart_tax_symbol'}{s name="Star" namespace="frontend/listing/box_article"}{/s}{/block}
-                {else}
-                    {$sBasketItem.price|currency}{block name='frontend_checkout_cart_tax_symbol'}{s name="Star" namespace="frontend/listing/box_article"}{/s}{/block}
-                {/if}
-
+                {$originalPrice|currency}{block name='frontend_checkout_cart_tax_symbol'}{s name="Star" namespace="frontend/listing/box_article"}{/s}{/block}
+            {else}
+                {$sBasketItem.price|currency}{block name='frontend_checkout_cart_tax_symbol'}{s name="Star" namespace="frontend/listing/box_article"}{/s}{/block}
             {/if}
         </div>
     {/block}

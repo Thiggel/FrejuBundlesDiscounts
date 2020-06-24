@@ -80,7 +80,7 @@
                     {$img = $article['img']}
 
 
-                    {if $key+1 == count($freeAddArticles)}
+                    {if $key !== 0 && $key+1 == count($freeAddArticles)}
                         {$label = $label|cat:" und "}
                     {elseif $key !== 0}
                         {$label = $label|cat:","}

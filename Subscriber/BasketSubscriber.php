@@ -54,14 +54,9 @@ class BasketSubscriber implements SubscriberInterface
 
             if(!$isBundled)
             {
-                if($isConfBundled)
-                {
-                    $articleWithDiscount = $this->configuratorBundleDiscountApplierService->applyDiscountToProduct($article);
-                }
-                else
-                {
-                    $articleWithDiscount = $this->discountService->applyDiscountToProduct($article);
-                }
+                
+                $articleWithDiscount = $this->configuratorBundleDiscountApplierService->applyDiscountToProduct($article);
+                $articleWithDiscount = $this->discountService->applyDiscountToProduct($articleWithDiscount);
             }
         }
 

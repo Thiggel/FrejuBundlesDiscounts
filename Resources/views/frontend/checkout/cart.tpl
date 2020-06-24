@@ -51,7 +51,7 @@
 
     {if $bundleBonus > 0}
         <div class="freju--checkout__discount">
-            <div class="freju--checkout__discount_name">Bundle-Bonus: </div>
+            <div class="freju--checkout__discount_name">Bundle-Bonus <a href="javascript:modalBundleBonus();"><i class="icon--service"></i></a>: </div>
 
             <div class="freju--checkout__discount_value"> - {$bundleBonus|currency}</div>
         </div>

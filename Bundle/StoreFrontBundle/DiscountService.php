@@ -184,7 +184,6 @@ class DiscountService
                 ]
             ];
 
-
             foreach($order as $type => $typeOrder)
             {
                 // apply or de-apply discount in order of units
@@ -244,8 +243,9 @@ class DiscountService
     public function applyDiscountToProduct(array $article): array
     {
         $discounts = $this->getDiscounts();
-
+        
         if(isset($discounts[$article['articleID']])) {
+            
             $article['price'] = $discounts[$article['articleID']]['payablePrice'];
             $article['netprice'] = $article['price'] / (1 + $article['tax_rate'] / 100);
         }

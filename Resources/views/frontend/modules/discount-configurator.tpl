@@ -184,15 +184,15 @@
     </style>
 
     <div id="freju-discount-configurator" v-cloak>
-        <h1>Freier Rabatt-Konfigurator</h1>
-        <h2>Je mehr Sie bestellen, desto höher Ihr Bundle-Bonus</h2>
+        <h1>Freier Sparkit-Konfigurator</h1>
+        <h2>Je mehr Sie bestellen, desto höher Ihr Preisvorteil des Sparkits</h2>
         <dropdown :products="bundleProducts" @add-to-cart="getBasket"></dropdown>
 
         <loader v-if="basketLoading"></loader>
         <div class="freju-basket" v-else>
-            <h3>Bundle-Produkte im Warenkorb</h3>
+            <h3>Sparkit-Produkte im Warenkorb</h3>
             <product-listing :products="basketProducts" type="cart" v-if="basketProducts[0]" @remove-product="removeFromCart"></product-listing>
-            <div class="empty-state" v-else>Bisher befinden sich keine Produkte mit Konfigurator-Rabatt in Ihrem Warenkorb</div>
+            <div class="empty-state" v-else>Bisher befinden sich keine Produkte mit Sparkit-Preisvorteil in Ihrem Warenkorb</div>
         </div>
 
         <div class="freju-footer">
@@ -201,7 +201,7 @@
                 <span class="number green">%% total.bonus %%</span>
             </span>
             <span class="total">
-                Bundle-Preis:
+                Sparkit-Gesamtpreis:
                 <span class="number">%% total.price %%</span>
             </span>
             <a href="/checkout/confirm">
@@ -291,7 +291,7 @@
 
             template:
                     '<div class="freju-dropdown-wrapper">' +
-                        '<input type="text" class="freju-dropdown" placeholder="Nach Artikeln suchen…" v-model="searchRequest">' +
+                        '<input type="text" class="freju-dropdown" placeholder="Hier nach Artikelbezeichnung oder nach Artikelnummer suchen..." v-model="searchRequest">' +
                         '<div class="search-results" v-if="searchRequest">' +
                             '<div class="search-results-header">' +
                                 '<h3>Suchergebnisse</h3>' +
@@ -364,7 +364,19 @@
                     '<div class="details">' +
                         '<div class="name">%% product.name %%</div>' +
                         '<div class="ean">EAN: %% product.ean %%</div>' +
-                        '<div class="shipping-information">Sofort lieferbar</div>' +
+                        '<div class="shipping-information">{if $sArticle.sReleasedate && $sArticle.sReleasedate|date_format:"%Y%m%d" > $smarty.now|date_format:"%Y%m%d"}Bald verfügbar - Jetzt unverbindlich reservieren
+
+{elseif $sArticle.instock >= $sArticle.minpurchase && $sArticle.hide_buy != 1} {if date('N') < 6 && date('H') < 13}
+		Versand noch heute / Reservierbar zur Abholung
+		{else}
+                    Sofort versandfertig - Lieferung vsl. {if date('N')==4}{"+3 days"|date_format:"%d.%m.%Y"}{/if}{if date('N')<4}{"+2 days"|date_format:"%d.%m.%Y"}{/if}{if date('N')==6}{"+4 days"|date_format:"%d.%m.%Y"}{/if}{if date('N')==7}{"+3 days"|date_format:"%d.%m.%Y"}{/if} / Reservierbar zur Abholung
+					{/if}
+					 {elseif $sArticle.instock <= 0 && $sArticle.hide_buy != 1 && $sArticle.lfb_rfz}
+					 
+					Artikel im Außenlager / Lieferung oder Abholung in 3-5 Werktagen
+					
+					{else}Bestellartikel - wird exklusiv für Sie bestellt.{/if}
+						</div>' +
                     '</div>' +
                     '<div class="cart-details">' +
                         '<div class="price" v-html="price"></div>' +
