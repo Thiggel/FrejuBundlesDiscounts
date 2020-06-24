@@ -12,6 +12,7 @@ Ext.define('Shopware.apps.FrejuBundles.model.Bundle', {
     fields: [
         { name : 'id', type: 'int', useNull: true },
         { name : 'active', type: 'boolean' },
+        { name : 'abverkauf', type: 'boolean' },
         { name : 'createDate', type: 'date' },
         { name : 'mainProductId', type: 'int' },
         { name : 'bundleType', type: 'string' },

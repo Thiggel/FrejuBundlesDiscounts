@@ -92,10 +92,36 @@ class Bundle extends ModelEntity
      */
     private $createDate = null;
 
+    /**
+     * @var integer $abverkauf
+     *
+     * @ORM\Column(type="boolean")
+     */
+    private $abverkauf = false;
+
 
     public function __construct()
     {
         $this->relatedProducts = new ArrayCollection();
+    }
+
+    /**
+     * @param int $abverkauf
+     * @return Bundle
+     */
+    public function setAbverkauf($abverkauf)
+    {
+        $this->abverkauf = $abverkauf;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAbverkauf()
+    {
+        return $this->abverkauf;
     }
 
     /**
