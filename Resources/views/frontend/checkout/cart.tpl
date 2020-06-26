@@ -38,24 +38,3 @@
     </div>
 {/block}
 
-
-{block name='frontend_checkout_cart_cart_footer'}
-    {$bundleBonus = 0}
-    {foreach $sBasket.content as $item}
-
-        {if $item['additional_details'].attributes.bundleInBasket}
-            {$bundle = $item['additional_details'].attributes.bundle->get('bundle')}
-            {$bundleBonus = $bundleBonus + $bundle['absoluteBonus']}
-        {/if}
-    {/foreach}
-
-    {if $bundleBonus > 0}
-        <div class="freju--checkout__discount">
-            <div class="freju--checkout__discount_name">Bundle-Bonus <a href="javascript:modalBundleBonus();"><i class="icon--service"></i></a>: </div>
-
-            <div class="freju--checkout__discount_value"> - {$bundleBonus|currency}</div>
-        </div>
-    {/if}
-    {include file="parent:frontend/checkout/cart_footer.tpl"}
-{/block}
-
