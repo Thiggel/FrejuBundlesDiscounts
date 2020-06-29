@@ -35,7 +35,8 @@ class BasketSubscriber implements SubscriberInterface
     {
         return [
             'Shopware_Modules_Basket_GetBasket_FilterItemStart' => 'onGetBasket_FilterItemStart',
-            'Shopware_Modules_Basket_AddArticle_Start' => 'onAddArticle_Start'
+            'Shopware_Modules_Basket_AddArticle_Start' => 'onAddArticle_Start',
+            'Shopware_Modules_Order_SaveOrder_ProcessDetails' => 'onOrderCreated'
         ];
     }
 
@@ -54,7 +55,7 @@ class BasketSubscriber implements SubscriberInterface
 
             if(!$isBundled)
             {
-                
+
                 $articleWithDiscount = $this->configuratorBundleDiscountApplierService->applyDiscountToProduct($article);
                 $articleWithDiscount = $this->discountService->applyDiscountToProduct($articleWithDiscount);
             }
@@ -80,6 +81,53 @@ class BasketSubscriber implements SubscriberInterface
         foreach($freeArticles[$id] as $product)
         {
             Shopware()->Modules()->Basket()->sAddArticle($product['ordernumber'], $quantity);
+        }
+    }
+
+    public function onOrderCreated(\Enlight_Event_EventArgs $eventArguments)
+    {
+        $details = $eventArguments->getDetails();
+        $orderId = $eventArguments->get('orderId');
+        $discount = 0;
+
+        foreach($details as $item)
+        {
+            $orderNumber = $item['ordernumber'];
+            $sql = "
+                SELECT s_articles_prices.price
+                FROM s_articles_details
+                JOIN s_articles_prices ON s_articles_details.id = s_articles_prices.articledetailsID
+                WHERE s_articles_details.ordernumber = '$orderNumber'
+            ";
+
+            try {
+                $query = Shopware()->Db()->query($sql)->fetchAll()[0];
+            } catch (\Zend_Db_Adapter_Exception $e) {
+                Shopware()->PluginLogger()->error($e);
+            } catch (\Zend_Db_Statement_Exception $e) {
+                Shopware()->PluginLogger()->error($e);
+            }
+
+            $normalPrice = $query['price'] * (1 + $item['tax_rate'] / 100);
+            if($normalPrice > 0)
+            {
+                $price = str_replace(',', '.', $item['price']);
+                $itemDiscount = ($normalPrice  - $price) * $item['quantity'];
+
+                if($itemDiscount > 0) $discount += round($itemDiscount, 2);
+            }
+        }
+
+        $sql = "
+            UPDATE s_order_attributes
+            SET discount = '$discount'
+            WHERE orderID = '$orderId'
+        ";
+
+        try {
+            Shopware()->Db()->exec($sql);
+        } catch (\Zend_Db_Adapter_Exception $e) {
+            Shopware()->PluginLogger()->error($e);
         }
     }
 }
