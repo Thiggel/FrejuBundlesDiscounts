@@ -92,12 +92,15 @@ class BasketSubscriber implements SubscriberInterface
 
         foreach($details as $item)
         {
+            $customerGroup = Shopware()->Shop()->getCustomerGroup()->getKey();
+
             $orderNumber = $item['ordernumber'];
             $sql = "
                 SELECT s_articles_prices.price
                 FROM s_articles_details
                 JOIN s_articles_prices ON s_articles_details.id = s_articles_prices.articledetailsID
                 WHERE s_articles_details.ordernumber = '$orderNumber'
+                AND s_articles_prices.pricegroup = '$customerGroup'
             ";
 
             try {
